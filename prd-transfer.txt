@@ -1,0 +1,139 @@
+PRD — Transfer Feature
+Ví điện tử ZaloPay · P2P · iBFT · QR Code
+Version 1.0 | Internal
+
+=== 1. TỔNG QUAN ===
+Ba luồng chính:
+- P2P (Peer-to-Peer): chuyển tiền nội bộ giữa các ví trong hệ thống
+- iBFT (Interbank Fund Transfer): chuyển tiền ra tài khoản ngân hàng
+- QR Code: tạo mã QR để nhận tiền trong và ngoài hệ thống
+
+=== 2. ĐIỀU KIỆN KYC ===
+Mọi tính năng chuyển tiền đều yêu cầu KYC. Ba cấp độ:
+
+| Cấp độ     | Loại xác thực              | Fund-out/ngày | Fund-out/tháng | P2P              |
+|------------|----------------------------|---------------|----------------|------------------|
+| eKYC2      | Định danh lv2 (eKYC)       | 20.000.000    | 20.000.000     | Sender & Receiver|
+| KYC2       | Liên kết ngân hàng lv2     | 20.000.000    | 20.000.000     | Sender & Receiver|
+| eKYC3      | Định danh lv3              | 50.000.000    | 100.000.000    | Sender & Receiver|
+
+Fund-in theo KYC:
+| KYC             | Fund-in/ngày  | Fund-in/tháng | QR Receiver |
+|-----------------|---------------|---------------|-------------|
+| eKYC2 / KYC2   | 20.000.000    | 20.000.000    | KYC ≥ 2     |
+| eKYC3          | Không giới hạn| Không giới hạn| KYC ≥ 2     |
+
+QUY TẮC CHUNG: Sender chưa KYC hoặc KYC lv1 KHÔNG được thực hiện bất kỳ giao dịch chuyển tiền nào.
+
+=== 3. P2P — CHUYỂN TIỀN NỘI BỘ ===
+
+3.2 Điều kiện giao dịch:
+| Thuộc tính       | Giá trị                              |
+|------------------|--------------------------------------|
+| Min amount       | 1.000 VND                            |
+| Max amount       | 20.000.000 VND                       |
+| Phí              | Miễn phí                             |
+| Điều kiện Sender | KYC ≥ 2 (eKYC2, KYC2, eKYC3)       |
+| Điều kiện Receiver| KYC ≥ 2 (eKYC2, KYC2, eKYC3)      |
+
+3.3 Cách nhập thông tin receiver:
+- Nhập tay (input data): nhập số điện thoại hoặc ID ví
+- Suggest list: danh sách gợi ý hiển thị tại trang home
+- Contact list: chọn từ danh sách liên hệ
+
+3.4 Hạn mức theo KYC:
+| KYC             | Fund-out/ngày | Fund-out/tháng | Fund-in/ngày  | Fund-in/tháng  |
+|-----------------|---------------|----------------|---------------|----------------|
+| eKYC2 / KYC2   | 20.000.000    | 20.000.000     | 20.000.000    | 20.000.000     |
+| eKYC3          | 50.000.000    | 100.000.000    | Không giới hạn| Không giới hạn |
+
+=== 4. iBFT — CHUYỂN TIỀN RA NGÂN HÀNG ===
+
+4.2 Điều kiện giao dịch:
+| Thuộc tính       | Giá trị                   |
+|------------------|---------------------------|
+| Min amount       | 2.000 VND                 |
+| Max amount       | 20.000.000 VND            |
+| Điều kiện Sender | KYC ≥ 2                   |
+| Inquiry limit    | 50 lần/giờ · 80 lần/ngày  |
+
+4.3 Đích đến:
+- Số thẻ ngân hàng
+- Số tài khoản ngân hàng
+- Acc alias (định danh tài khoản)
+
+4.4 Cách nhập thông tin receiver:
+- Scan VietQR: quét mã QR VietQR để tự động điền thông tin
+- Nhập tay: nhập số thẻ, số tài khoản, hoặc acc alias
+- Suggest list: danh sách gợi ý từ trang home
+- Saved list: danh sách tài khoản đã lưu
+
+4.5 Chính sách phí:
+| Nguồn tiền             | Chính sách                                            | Ghi chú                     |
+|------------------------|-------------------------------------------------------|-----------------------------|
+| Ví điện tử             | Miễn phí 5.000.000 VND/tháng đầu. Vượt quota → phí. | Quota reset đầu mỗi tháng   |
+| Tài khoản ngân hàng    | Miễn phí 5.000.000 VND/tháng đầu. Vượt quota → phí. | Tương tự nguồn ví            |
+| MMF (Money Market Fund)| Miễn phí hoàn toàn, không giới hạn.                  | Không tính vào quota         |
+
+Lưu ý phí: Quota 5M/tháng áp dụng RIÊNG BIỆT cho nguồn ví và nguồn bank. MMF luôn miễn phí.
+
+4.6 Hạn mức theo KYC:
+| KYC             | Fund-out/ngày | Fund-out/tháng | Fund-in/ngày  | Fund-in/tháng  |
+|-----------------|---------------|----------------|---------------|----------------|
+| eKYC2 / KYC2   | 20.000.000    | 20.000.000     | 20.000.000    | 20.000.000     |
+| eKYC3          | 50.000.000    | 100.000.000    | Không giới hạn| Không giới hạn |
+
+=== 5. QR CODE — NHẬN TIỀN QUA MÃ QR ===
+
+5.2 Cách thức hoạt động:
+- ZaloPay scan QR: thực hiện giao dịch P2P nội bộ
+- App khác scan QR: thực hiện giao dịch liên ngân hàng
+
+5.3 Rule tạo QR = Rule nhận tiền P2P
+
+5.4 Đích nhận tiền (có thể setting):
+| Đích nhận    | Hạn mức                                       | Ghi chú               |
+|-------------|------------------------------------------------|-----------------------|
+| Ví điện tử  | Theo hạn mức fund-in P2P (KYC level)           | Rule P2P áp dụng      |
+| SDSL        | Tối đa 100.000.000 VND                         | Không phụ thuộc KYC   |
+
+QR Code SDSL: Khi receiver chọn đích SDSL → hạn mức 100M/giao dịch. Boundary: 100M pass, 100M+1 fail.
+
+=== 6. RÀNG BUỘC & EDGE CASE QUAN TRỌNG ===
+
+6.1 Amount validation:
+- Amount = 0 hoặc âm: từ chối
+- Amount không phải số nguyên (VD: 1000.5): cần xử lý/validate
+- Amount dưới min từng loại: từ chối với error message rõ ràng
+- Amount vượt max/giao dịch (20M): từ chối
+
+6.2 Hạn mức tích lũy:
+- Fund-out và fund-in là hai hạn mức ĐỘC LẬP
+- Hạn mức ngày reset vào 00:00 mỗi ngày
+- Hạn mức tháng reset vào ngày đầu tiên của tháng mới
+- Quota phí iBFT (5M/tháng) reset độc lập theo tháng
+
+6.3 Giao dịch đồng thời (Concurrent):
+- Đảm bảo không trừ tiền 2 lần khi có concurrent transactions
+- Network timeout giữa chừng: phải rollback, không trừ tiền
+
+6.4 Inquiry limit (iBFT):
+- Giới hạn 50 lần/giờ và 80 lần/ngày (ĐỘC LẬP nhau)
+- Vi phạm bất kỳ ngưỡng nào: chặn inquiry, hiển thị error
+- Counter reset: đầu giờ mới (hourly) và 00:00 ngày mới
+
+=== 7. GLOSSARY ===
+| Thuật ngữ | Định nghĩa |
+|-----------|------------|
+| P2P       | Peer-to-Peer — chuyển tiền nội bộ giữa các ví ZaloPay |
+| iBFT      | Interbank Fund Transfer — chuyển tiền ra tài khoản ngân hàng |
+| eKYC2     | Level 2 do định danh điện tử. Fund-out 20M/ngày, 20M/tháng |
+| KYC2      | Level 2 do liên kết tài khoản ngân hàng. Fund-out 20M/ngày, 20M/tháng |
+| eKYC3     | Level 3 do định danh điện tử. Fund-out 50M/ngày, 100M/tháng. Fund-in không giới hạn |
+| Fund-out  | Tiền ra khỏi ví (chuyển đi) |
+| Fund-in   | Tiền vào ví (nhận về) |
+| MMF       | Money Market Fund — nguồn tiền từ quỹ tiền tệ, miễn phí iBFT hoàn toàn |
+| SDSL      | Đích nhận tiền thay thế ví điện tử khi dùng QR Code, tối đa 100M/giao dịch |
+| Acc alias | Định danh tài khoản ngân hàng thay thế số tài khoản/thẻ |
+| VietQR    | Chuẩn QR Code liên ngân hàng Việt Nam |
+| Inquiry   | Tra cứu thông tin tài khoản ngân hàng trong luồng iBFT |
