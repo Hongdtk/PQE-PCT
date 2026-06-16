@@ -53,11 +53,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .msg.bot .bubble ul{margin:4px 0 4px 16px;padding:0}
 .msg.bot .bubble li{margin:2px 0}
 .msg.bot .bubble code{background:#e8eaed;border-radius:3px;padding:1px 4px;font-size:12px;font-family:monospace}
-.msg.bot .bubble.has-table{max-width:95%}
+.msg.bot .bubble hr{border:none;border-top:1px solid #dadce0;margin:8px 0}
+.msg.bot .bubble.has-table{max-width:100%}
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:6px 0}
-.msg.bot .bubble table{border-collapse:collapse;white-space:nowrap;font-size:12px}
-.msg.bot .bubble th{background:#e8f0fe;color:#1a73e8;font-weight:600;padding:6px 10px;border:1px solid #c5d8fb;text-align:left}
-.msg.bot .bubble td{padding:5px 10px;border:1px solid #dadce0;vertical-align:top;white-space:normal;min-width:60px}
+.msg.bot .bubble table{border-collapse:collapse;font-size:12px;width:100%}
+.msg.bot .bubble th{background:#e8f0fe;color:#1a73e8;font-weight:600;padding:6px 10px;border:1px solid #c5d8fb;text-align:left;min-width:80px}
+.msg.bot .bubble td{padding:5px 10px;border:1px solid #dadce0;vertical-align:top;white-space:normal;min-width:80px}
 .msg.bot .bubble tr:nth-child(even) td{background:#f8f9fa}
 /* TEST CASE CHECKLIST */
 .tc-list{display:flex;flex-direction:column;gap:5px;margin:6px 0}
@@ -77,6 +78,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tc-detail .tc-row{margin-bottom:6px}
 .tc-detail .tc-label{font-weight:600;color:#5f6368;font-size:11px;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:2px}
 .tc-section{font-size:11px;font-weight:600;color:#5f6368;padding:6px 2px 2px;letter-spacing:.3px}
+/* FEATURE CARD */
+.fc{border:1.5px solid #dadce0;border-radius:10px;overflow:hidden;font-size:12px;margin:2px 0}
+.fc-title{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid #e8eaed;background:#fafafa}
+.fc-title input[type=checkbox]{width:13px;height:13px;accent-color:#1a73e8;flex-shrink:0}
+.fc-title span{font-size:11px;font-weight:700;color:#3c4043;letter-spacing:.5px;text-transform:uppercase}
+.fc-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 12px;border-bottom:1px solid #f1f3f4;gap:8px}
+.fc-row:last-child{border-bottom:none}
+.fc-label{color:#5f6368;font-size:11.5px;white-space:nowrap;padding-top:1px}
+.fc-val{text-align:right;font-weight:600;color:#202124;font-size:11.5px}
+.fc-note{display:block;color:#d93025;font-weight:500;font-size:10.5px;margin-top:1px}
+.fc-tags-row{padding:7px 12px;border-bottom:1px solid #f1f3f4}
+.fc-tags-row:last-child{border-bottom:none}
+.fc-tags-label{color:#5f6368;font-size:11.5px;margin-bottom:5px}
+.fc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.fc-tag{font-size:11px;padding:3px 9px;border-radius:12px;background:#e8f0fe;color:#1a73e8;font-weight:500}
 
 .typing .bubble{background:#f1f3f4;padding:9px 13px;display:flex;align-items:center;gap:8px}
 .typing-text{font-size:12px;color:#5f6368;animation:fadeStatus 0.3s ease}
@@ -173,7 +189,7 @@ const I18N = {
     modes: ['Tất cả','Nghiệp vụ','Test case','Bug report','Công cụ','Mô phỏng'],
     welcome: 'Xin chào! Tôi là **QE Training Agent**.\n\nTôi có thể giúp bạn:\n• Nghiệp vụ chuyển tiền nội địa & quốc tế\n• Viết test case và test scenario\n• Bug report chuẩn\n• Công cụ & môi trường test\n• Mô phỏng tình huống thực tế',
     quick: {
-      all:[['Chuyển tiền nội địa','Quy trình chuyển tiền nội địa là gì?'],['Mô phỏng test','Cho tôi 1 test scenario về chuyển tiền quốc tế'],['Bug report mẫu','Cách viết bug report cho lỗi sai số tiền?'],['Công cụ test','Các công cụ nào dùng để test money transfer?']],
+      all:[['📋 P2P','__fc:p2p'],['📋 iBFT','__fc:ibft'],['📋 QR Code','__fc:qr'],['Chuyển tiền nội địa','Quy trình chuyển tiền nội địa là gì?'],['Mô phỏng test','Cho tôi 1 test scenario về chuyển tiền quốc tế'],['Bug report mẫu','Cách viết bug report cho lỗi sai số tiền?']],
       nghiep_vu:[['CT quốc tế','Quy trình chuyển tiền quốc tế SWIFT như thế nào?'],['Hạn mức','Hạn mức chuyển tiền và các quy định liên quan?'],['Trạng thái GD','Các trạng thái của một giao dịch chuyển tiền?'],['Rollback','Khi nào giao dịch bị rollback và quy trình hoàn tiền?']],
       test_case:[['Happy path','Viết test case happy path cho chuyển tiền nội địa'],['API test','Cấu trúc test case API cho endpoint chuyển tiền?']],
       bug:[['Sai số tiền','Viết bug report: hiển thị sai số tiền sau khi chuyển'],['Timeout','Viết bug report: giao dịch timeout nhưng tiền vẫn bị trừ'],['Severity','Cách phân loại severity và priority cho bug money transfer?'],['Template','Template bug report chuẩn cho dự án banking?']],
@@ -189,7 +205,7 @@ const I18N = {
     modes: ['All','Business','Test case','Bug report','Tools','Simulation'],
     welcome: 'Hello! I\'m the **QE Training Agent**.\n\nI can help you with:\n• Domestic & international money transfer flows\n• Writing test cases and scenarios\n• Proper bug reports\n• Testing tools & environments\n• Real-world test simulations',
     quick: {
-      all:[['Domestic transfer','What is the domestic money transfer process?'],['Simulate test','Give me a test scenario for international transfer'],['Bug report sample','How to write a bug report for wrong amount displayed?'],['Test tools','What tools are used to test money transfer?']],
+      all:[['📋 P2P','__fc:p2p'],['📋 iBFT','__fc:ibft'],['📋 QR Code','__fc:qr'],['Domestic transfer','What is the domestic money transfer process?'],['Simulate test','Give me a test scenario for international transfer'],['Bug report sample','How to write a bug report for wrong amount displayed?']],
       nghiep_vu:[['SWIFT','How does the international SWIFT transfer process work?'],['Limits','What are the transfer limits and regulations?'],['Statuses','What are the statuses of a money transfer transaction?'],['Rollback','When does a transaction rollback and how is refund processed?']],
       test_case:[['Happy path','Write a happy path test case for domestic transfer'],['API test','Test case structure for the transfer API endpoint?']],
       bug:[['Wrong amount','Write bug report: wrong amount displayed after transfer'],['Timeout','Write bug report: transaction timeout but money was deducted'],['Severity','How to classify severity and priority for money transfer bugs?'],['Template','Standard bug report template for a banking project?']],
@@ -233,9 +249,12 @@ function setMode(m, el) {
 
 function updateQuickBtns(m) {
   const btns = I18N[lang].quick[m] || I18N[lang].quick.all;
-  document.getElementById('quickBtns').innerHTML = btns.map(([label, q]) =>
-    `<button class="qbtn" onclick="sendQuick('${q.replace(/'/g,"&#39;")}')">${label}</button>`
-  ).join('');
+  document.getElementById('quickBtns').innerHTML = btns.map(([label, q]) => {
+    if (q.startsWith('__fc:')) {
+      return `<button class="qbtn" onclick="showFeatureCard('${q.slice(5)}')">${label}</button>`;
+    }
+    return `<button class="qbtn" onclick="sendQuick('${q.replace(/'/g,"&#39;")}')">${label}</button>`;
+  }).join('');
 }
 
 function renderLines(lines, esc, inline) {
@@ -261,10 +280,14 @@ function renderLines(lines, esc, inline) {
       });
       out.push(`<div class="tbl-wrap">${tbl}</table></div>`); continue;
     }
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(line.trim())) { out.push('<hr>'); i++; continue; }
     if (/^[-*]\s/.test(line)) {
       out.push('<ul>');
-      while (i < lines.length && /^[-*]\s/.test(lines[i]))
-        out.push(`<li>${inline(lines[i++].replace(/^[-*]\s+/,''))}</li>`);
+      while (i < lines.length && /^[-*]\s/.test(lines[i])) {
+        const raw = lines[i++].replace(/^[-*]\s+/,'');
+        const txt = raw.replace(/^\[[ xX]\]\s*/i, '');
+        out.push(`<li>${inline(txt)}</li>`);
+      }
       out.push('</ul>'); continue;
     }
     if (line.trim()==='') { out.push('<br>'); i++; continue; }
@@ -313,9 +336,13 @@ function mdToHtml(text) {
         let bodyHtml = '', inUl = false;
         b.body.filter(l=>l.trim()).forEach(l => {
           const s = l.replace(/^\s+/,'');
-          if (/^[-*•]\s/.test(s) || /^\d+[.)]\s/.test(s)) {
+          if (/^(-{3,}|\*{3,}|_{3,})$/.test(s)) {
+            if (inUl) { bodyHtml += '</ul>'; inUl = false; }
+            bodyHtml += '<hr>';
+          } else if (/^[-*•]\s/.test(s) || /^\d+[.)]\s/.test(s)) {
             if (!inUl) { bodyHtml += '<ul>'; inUl = true; }
-            bodyHtml += `<li>${inline(s.replace(/^[-*•]\s+|^\d+[.)]\s+/,''))}</li>`;
+            const raw2 = s.replace(/^[-*•]\s+|^\d+[.)]\s+/,'');
+            bodyHtml += `<li>${inline(raw2.replace(/^\[[ xX]\]\s*/i,''))}</li>`;
           } else {
             if (inUl) { bodyHtml += '</ul>'; inUl = false; }
             if (s) bodyHtml += `<p>${inline(s)}</p>`;
@@ -361,12 +388,15 @@ function mdToHtml(text) {
       });
       out.push(`<div class="tbl-wrap">${tbl}</table></div>`); continue;
     }
+    // horizontal rule
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(line.trim())) { out.push('<hr>'); i++; continue; }
     // unordered list
     if (/^[-*]\s/.test(line)) {
       out.push('<ul>');
       while (i < lines.length && /^[-*]\s/.test(lines[i])) {
-        out.push(`<li>${inline(lines[i].replace(/^[-*]\s+/,''))}</li>`);
-        i++;
+        const raw = lines[i++].replace(/^[-*]\s+/,'');
+        const txt = raw.replace(/^\[[ xX]\]\s*/i, '');
+        out.push(`<li>${inline(txt)}</li>`);
       }
       out.push('</ul>'); continue;
     }
@@ -501,6 +531,87 @@ function autoResize(el) {
   el.style.height = '';
   el.style.height = Math.min(el.scrollHeight, 90) + 'px';
   document.getElementById('sendBtn').disabled = el.value.trim() === '' || isTyping;
+}
+
+const FEATURE_CARDS = {
+  p2p: {
+    title: 'P2P — CHUYỂN TIỀN NỘI BỘ',
+    rows: [
+      { label: 'Min amount',  value: '1.000 VND' },
+      { label: 'Max amount',  value: '20.000.000 VND' },
+      { label: 'Phí',         value: 'Miễn phí' },
+      { label: 'Sender',      value: 'KYC ≥ 2', note: 'KYC lv1 không được' },
+      { label: 'Receiver',    value: 'KYC ≥ 2', note: 'KYC lv1 không được' },
+    ],
+    tags: [
+      { label: 'Nhập receiver', chips: ['Nhập tay', 'Suggest list', 'Contact list'] },
+    ]
+  },
+  ibft: {
+    title: 'iBFT — RA NGÂN HÀNG',
+    rows: [
+      { label: 'Min amount',     value: '2.000 VND' },
+      { label: 'Max amount',     value: '20.000.000 VND' },
+      { label: 'Sender',         value: 'eKYC2 trở lên', note: 'KYC2 không được' },
+      { label: 'Inquiry limit',  value: '50/giờ · 80/ngày' },
+    ],
+    tags: [
+      { label: 'Nhập receiver', chips: ['Scan VietQR', 'Nhập tay', 'Suggest list', 'Saved list'] },
+      { label: 'Đích đến',      chips: ['Số thẻ', 'Số TK', 'Acc alias'] },
+    ]
+  },
+  qr: {
+    title: 'QR CODE — NHẬN TIỀN',
+    rows: [
+      { label: 'Rule tạo QR',      value: '= Rule nhận tiền P2P' },
+      { label: 'ZaloPay scan QR',  value: 'P2P nội bộ' },
+      { label: 'App khác scan QR', value: 'Liên ngân hàng' },
+      { label: 'Đích SDSL max',    value: '100.000.000 VND', note: '100M pass · 100M+1 fail' },
+    ],
+    tags: [
+      { label: 'Đích đến', chips: ['Ví điện tử', 'SDSL'] },
+    ]
+  }
+};
+
+function buildFeatureCardHtml(key) {
+  const card = FEATURE_CARDS[key];
+  if (!card) return '';
+  let h = `<div class="fc">`;
+  h += `<div class="fc-title"><input type="checkbox"><span>${card.title}</span></div>`;
+  card.rows.forEach(r => {
+    h += `<div class="fc-row"><span class="fc-label">${r.label}</span><span class="fc-val">${r.value}`;
+    if (r.note) h += `<span class="fc-note">${r.note}</span>`;
+    h += `</span></div>`;
+  });
+  card.tags.forEach(t => {
+    h += `<div class="fc-tags-row"><div class="fc-tags-label">${t.label}</div><div class="fc-tags">`;
+    t.chips.forEach(c => { h += `<span class="fc-tag">${c}</span>`; });
+    h += `</div></div>`;
+  });
+  h += `</div>`;
+  return h;
+}
+
+function showFeatureCard(key) {
+  const html = buildFeatureCardHtml(key);
+  if (!html) return;
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.innerHTML = `
+    <div class="bot-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="10" rx="2"/>
+        <circle cx="12" cy="5" r="2"/>
+        <line x1="12" y1="7" x2="12" y2="11"/>
+        <circle cx="8.5" cy="15.5" r="1"/>
+        <circle cx="15.5" cy="15.5" r="1"/>
+      </svg>
+    </div>
+    <div class="bubble">${html}</div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
 }
 
 window.addEventListener('load', () => {

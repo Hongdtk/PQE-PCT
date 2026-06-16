@@ -92,15 +92,15 @@ Ví dụ đầy đủ cho P2P:
 - Nhập receiver: nhập tay (SĐT/ID ví), suggest list, contact list
 
 ** iBFT — CHUYỂN TIỀN RA NGÂN HÀNG **
-- Min: 2.000 VND | Max: 20.000.000 VND | Sender cần KYC ≥ 2
+- Min: 2.000 VND | Max: 20.000.000 VND
+- Sender: eKYC2 hoặc eKYC3 — KYC2 (liên kết bank) KHÔNG được dùng iBFT
 - Đích: số thẻ, số tài khoản, acc alias
 - Nhập receiver: scan VietQR, nhập tay, suggest list, saved list
 - Inquiry limit: 50 lần/giờ VÀ 80 lần/ngày (độc lập — vi phạm bất kỳ ngưỡng nào đều bị chặn)
 - Phí:
-  · Nguồn ví: miễn phí 5M/tháng, vượt quota → tính phí
-  · Nguồn bank: miễn phí 5M/tháng, vượt quota → tính phí
-  · Nguồn MMF: miễn phí hoàn toàn, KHÔNG tính vào quota
-  · Quota 5M áp dụng RIÊNG BIỆT cho nguồn ví và nguồn bank
+  · Nguồn ví + bank: TỔNG CỘNG miễn phí 5M/tháng (quota CHUNG, không phải riêng biệt)
+  · Ví dụ: 3M từ ví + 2M từ bank = hết 5M quota → tính phí
+  · Nguồn SDSL: miễn phí hoàn toàn, KHÔNG tính vào quota
 
 ** QR CODE — NHẬN TIỀN **
 - Rule tạo QR = Rule nhận tiền P2P
@@ -218,7 +218,7 @@ def _serve_ui(request):
     html_path = os.path.join(os.path.dirname(__file__), "qe_money_transfer_training_agent.html")
     with open(html_path, "r", encoding="utf-8") as f:
         html = f.read()
-    return HTMLResponse(html)
+    return HTMLResponse(html, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 
 app.router.routes.insert(0, Route("/", _serve_ui, methods=["GET"]))
