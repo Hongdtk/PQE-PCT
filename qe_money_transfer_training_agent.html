@@ -484,6 +484,17 @@ async function sendMsg() {
     let buffer = '';
     let replyText = '';
     let bubbleEl = null;
+    let rafId = null;
+    const chatEl = document.getElementById('chat');
+
+    const flush = () => {
+      rafId = null;
+      if (!bubbleEl) return;
+      bubbleEl.innerHTML = mdToHtml(replyText);
+      if (bubbleEl.innerHTML.includes('<table')) bubbleEl.classList.add('has-table');
+      const nearBottom = chatEl.scrollHeight - chatEl.scrollTop - chatEl.clientHeight < 120;
+      if (nearBottom) chatEl.scrollTop = chatEl.scrollHeight;
+    };
 
     while (true) {
       const { done, value } = await reader.read();
@@ -504,15 +515,14 @@ async function sendMsg() {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'msg bot';
             msgDiv.innerHTML = `<div class="bot-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="11"/><circle cx="8.5" cy="15.5" r="1"/><circle cx="15.5" cy="15.5" r="1"/></svg></div><div class="bubble"></div>`;
-            document.getElementById('chat').appendChild(msgDiv);
+            chatEl.appendChild(msgDiv);
             bubbleEl = msgDiv.querySelector('.bubble');
           }
-          bubbleEl.innerHTML = mdToHtml(replyText);
-          if (bubbleEl.innerHTML.includes('<table')) bubbleEl.classList.add('has-table');
-          document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+          if (!rafId) rafId = requestAnimationFrame(flush);
         } catch(_) {}
       }
     }
+    if (rafId) { cancelAnimationFrame(rafId); flush(); }
 
     if (!bubbleEl) { removeTyping(); appendMsg('bot', 'Xin lỗi, có lỗi xảy ra.'); }
     history.push({role:'user', content: text});
