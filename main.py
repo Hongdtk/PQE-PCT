@@ -1,9 +1,11 @@
 import os
+import json
 from openai import OpenAI
 from dotenv import load_dotenv
 from greennode_agentbase import GreenNodeAgentBaseApp, RequestContext, PingStatus
 from starlette.routing import Route
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, StreamingResponse
+from starlette.requests import Request
 
 load_dotenv()
 
@@ -183,45 +185,27 @@ def handler(payload: dict, context: RequestContext) -> dict:
     base_messages = [m for m in history if isinstance(m, dict) and "role" in m and "content" in m]
     base_messages = base_messages[-12:]
 
-    if is_tc_request:
-        def call_llm(prompt):
-            msgs = base_messages + [{"role": "user", "content": prompt}]
-            r = get_client().chat.completions.create(
-                model=os.environ.get("LLM_MODEL", "claude-sonnet-4-5"),
-                max_tokens=3000,
-                messages=[{"role": "system", "content": SYSTEM_PROMPT}] + msgs,
-            )
-            return r.choices[0].message.content or ""
-
-        valid_prompt = (
-            f"{message}\n\n"
-            "Chỉ liệt kê các VALID TEST CASE (happy path, đúng điều kiện) cho yêu cầu trên.\n"
-            "Bắt đầu bằng dòng: ✅ Valid cases\n"
-            "Format mỗi TC:\n**TC0X: Tên**\n- Điều kiện:\n  - ...\n- Steps:\n  - ...\n- Expected: ..."
-        )
-        invalid_prompt = (
-            f"{message}\n\n"
-            "Chỉ liệt kê các INVALID TEST CASE (KYC không đủ, amount sai/âm/0/vượt hạn mức, timeout, concurrent, inquiry limit...) cho yêu cầu trên.\n"
-            "Bắt đầu bằng dòng: ❌ Invalid cases\n"
-            "Format mỗi TC:\n**TC0X: Tên**\n- Điều kiện:\n  - ...\n- Steps:\n  - ...\n- Expected: ..."
-        )
-
-        valid_reply = call_llm(valid_prompt)
-        invalid_reply = call_llm(invalid_prompt)
-        reply = valid_reply.strip() + "\n\n" + invalid_reply.strip()
+    if mode != "all" and mode in MODE_LABELS:
+        user_content = f"[Chế độ: {MODE_LABELS[mode]}] {message}"
     else:
-        if mode != "all" and mode in MODE_LABELS:
-            user_content = f"[Chế độ: {MODE_LABELS[mode]}] {message}"
-        else:
-            user_content = message
+        user_content = message
 
-        base_messages.append({"role": "user", "content": user_content})
-        response = get_client().chat.completions.create(
-            model=os.environ.get("LLM_MODEL", "claude-sonnet-4-5"),
-            max_tokens=1000,
-            messages=[{"role": "system", "content": SYSTEM_PROMPT}] + base_messages,
+    if is_tc_request:
+        user_content = (
+            f"{user_content}\n\n"
+            "Liệt kê ĐẦY ĐỦ cả hai nhóm trong một lần trả lời:\n"
+            "1. ✅ Valid cases (happy path)\n"
+            "2. ❌ Invalid cases (KYC không đủ, amount sai/âm/0/vượt hạn mức, timeout, concurrent, inquiry limit...)"
         )
-        reply = response.choices[0].message.content or ""
+
+    base_messages.append({"role": "user", "content": user_content})
+    max_tokens = 3000 if is_tc_request else 1500
+    response = get_client().chat.completions.create(
+        model=os.environ.get("LLM_MODEL", "claude-sonnet-4-5"),
+        max_tokens=max_tokens,
+        messages=[{"role": "system", "content": SYSTEM_PROMPT}] + base_messages,
+    )
+    reply = response.choices[0].message.content or ""
 
     return {
         "reply": reply,
@@ -241,6 +225,57 @@ def _serve_ui(request):
     return HTMLResponse(html, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 
+async def _stream_chat(request: Request):
+    body = await request.json()
+    message = body.get("message", "").strip()
+    if not message:
+        return HTMLResponse("", status_code=400)
+
+    mode = body.get("mode", "all")
+    history = body.get("history", [])
+
+    TC_KEYWORDS = ["test case", "testcase", "test-case", "viết tc", "liệt kê tc", "tc cho", "các tc"]
+    is_tc_request = mode == "test_case" or any(kw in message.lower() for kw in TC_KEYWORDS)
+
+    base_messages = [m for m in history if isinstance(m, dict) and "role" in m and "content" in m][-12:]
+
+    if mode != "all" and mode in MODE_LABELS:
+        user_content = f"[Chế độ: {MODE_LABELS[mode]}] {message}"
+    else:
+        user_content = message
+
+    if is_tc_request:
+        user_content = (
+            f"{user_content}\n\n"
+            "Liệt kê ĐẦY ĐỦ cả hai nhóm trong một lần trả lời:\n"
+            "1. ✅ Valid cases (happy path)\n"
+            "2. ❌ Invalid cases (KYC không đủ, amount sai/âm/0/vượt hạn mức, timeout, concurrent, inquiry limit...)"
+        )
+
+    base_messages.append({"role": "user", "content": user_content})
+    max_tokens = 3000 if is_tc_request else 1500
+
+    def generate():
+        stream = get_client().chat.completions.create(
+            model=os.environ.get("LLM_MODEL", "claude-sonnet-4-5"),
+            max_tokens=max_tokens,
+            messages=[{"role": "system", "content": SYSTEM_PROMPT}] + base_messages,
+            stream=True,
+        )
+        for chunk in stream:
+            delta = chunk.choices[0].delta.content or ""
+            if delta:
+                yield f"data: {json.dumps({'d': delta})}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+app.router.routes.insert(0, Route("/chat", _stream_chat, methods=["POST"]))
 app.router.routes.insert(0, Route("/", _serve_ui, methods=["GET"]))
 
 
