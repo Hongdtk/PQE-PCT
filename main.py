@@ -130,8 +130,8 @@ Ví dụ đầy đủ cho P2P:
 ** QR CODE — NHẬN TIỀN **
 - Rule tạo QR = Rule nhận tiền P2P
 - Zalopay scan QR → P2P nội bộ; App khác scan QR → liên ngân hàng
-- Đích SDSL: tối đa 100.000.000 VND/giao dịch (không phụ thuộc KYC fund-in)
-  · Boundary: 100M pass, 100M+1 fail
+- Đích SDSL: tối đa 20.000.000 VND/giao dịch (không phụ thuộc KYC fund-in)
+  · Boundary: 20M pass, 20M+1 fail
 
 ** EDGE CASE QUAN TRỌNG **
 - Amount = 0 hoặc âm → từ chối

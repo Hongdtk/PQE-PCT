@@ -1,141 +1,976 @@
 PRD — Transfer Feature
 Ví điện tử Zalopay · P2P · iBFT · QR Code
-Version 1.0 | Internal
+Version 1.0  |  Internal
 
-=== 1. TỔNG QUAN ===
-Ba luồng chính:
-- P2P (Peer-to-Peer): chuyển tiền nội bộ giữa các ví trong hệ thống
-- iBFT (Interbank Fund Transfer): chuyển tiền ra tài khoản ngân hàng
-- QR Code: tạo mã QR để nhận tiền trong và ngoài hệ thống
+1. Tổng quan
+Tài liệu này mô tả các yêu cầu sản phẩm (PRD) cho tính năng Chuyển tiền trên ứng dụng ví điện tử Zalopay, bao gồm ba luồng chính:
+P2P (Peer-to-Peer): chuyển tiền nội bộ giữa các ví trong hệ thống
+iBFT (Interbank Fund Transfer): chuyển tiền ra tài khoản ngân hàng
+QR Code: tạo mã QR để nhận tiền trong và ngoài hệ thống
 
-=== 2. ĐIỀU KIỆN KYC ===
-Mọi tính năng chuyển tiền đều yêu cầu KYC. Ba cấp độ:
+2. Điều kiện KYC
+Mọi tính năng chuyển tiền đều yêu cầu người dùng đã xác thực danh tính. Hệ thống định nghĩa ba cấp độ:
 
-| Cấp độ | Loại xác thực | Fund-out/ngày | Fund-out/tháng | P2P |
-|--------|--------------|--------------|---------------|-----|
-| eKYC2 | Định danh lv2 (eKYC) | 20.000.000 VND | 20.000.000 VND | Sender & Receiver |
-| KYC2 | Liên kết ngân hàng lv2 | 20.000.000 VND | 20.000.000 VND | Sender & Receiver |
-| eKYC3 | Định danh lv3 | 50.000.000 VND | 100.000.000 VND | Sender & Receiver |
+Cấp độ
+Loại xác thực
+Fund-out/ngày
+Fund-out/tháng
+P2P
+eKYC2
+Định danh lv2 (eKYC)
+20.000.000 VND
+20.000.000 VND
+Sender & Receiver
+KYC2
+Liên kết ngân hàng lv2
+20.000.000 VND
+20.000.000 VND
+Sender & Receiver
+eKYC3
+Định danh lv3
+50.000.000 VND
+100.000.000 VND
+Sender & Receiver
 
-Fund-in theo KYC:
-| KYC | Fund-in/ngày | Fund-in/tháng | QR Receiver |
-|-----|-------------|--------------|------------|
-| eKYC2 / KYC2 | 20.000.000 VND | 20.000.000 VND | KYC ≥ 2 |
-| eKYC3 | Không giới hạn | Không giới hạn | KYC ≥ 2 |
+Cấp độ
+Loại xác thực
+Fund-in/ngày
+Fund-in/tháng
+QR Receiver
+eKYC2 / KYC2
+lv2
+20.000.000 VND
+20.000.000 VND
+KYC ≥ 2
+eKYC3
+Định danh lv3
+Không giới hạn
+Không giới hạn
+KYC ≥ 2
 
-QUY TẮC CHUNG: Sender chưa KYC hoặc KYC lv1 KHÔNG được thực hiện bất kỳ giao dịch chuyển tiền nào.
+Quy tắc chung
+Sender chưa KYC hoặc KYC lv1 KHÔNG được thực hiện bất kỳ giao dịch chuyển tiền nào.
 
-=== 3. P2P — CHUYỂN TIỀN NỘI BỘ ===
+3. P2P — Chuyển tiền nội bộ
+3.1 Mô tả
+P2P cho phép chuyển tiền giữa các ví Zalopay trong cùng hệ thống.
 
-3.2 Điều kiện giao dịch:
-| Thuộc tính | Giá trị |
-|-----------|---------|
-| Min amount | 1.000 VND |
-| Max amount | 20.000.000 VND |
-| Phí | Miễn phí |
-| Điều kiện Sender | KYC ≥ 2 (eKYC2, KYC2, eKYC3) |
-| Điều kiện Receiver | KYC ≥ 2 (eKYC2, KYC2, eKYC3) |
+3.2 Điều kiện giao dịch
+Thuộc tính
+Giá trị
+Min amount
+1.000 VND
+Max amount
+20.000.000 VND
+Phí
+Miễn phí
+Điều kiện Sender
+KYC ≥ 2 (eKYC2, KYC2, eKYC3)
+Điều kiện Receiver
+KYC ≥ 2 (eKYC2, KYC2, eKYC3)
 
-3.3 Cách nhập thông tin receiver:
-- Nhập tay (input data): nhập số điện thoại hoặc ID ví
-- Suggest list: danh sách gợi ý hiển thị tại trang home
-- Contact list: chọn từ danh sách liên hệ
+3.3 Cách nhập thông tin receiver
+Nhập tay (input data): nhập số điện thoại
+Suggest list: danh sách gợi ý hiển thị tại trang home
+Contact list: chọn từ danh sách liên hệ
 
-3.4 Hạn mức theo KYC:
-| KYC | Fund-out/ngày | Fund-out/tháng | Fund-in/ngày | Fund-in/tháng |
-|-----|--------------|---------------|-------------|--------------|
-| eKYC2 / KYC2 | 20.000.000 | 20.000.000 | 20.000.000 | 20.000.000 |
-| eKYC3 | 50.000.000 | 100.000.000 | Không giới hạn | Không giới hạn |
+3.4 Hạn mức theo KYC
+KYC
+Fund-out/ngày
+Fund-out/tháng
+Fund-in/ngày
+Fund-in/tháng
+eKYC2 / KYC2
+20.000.000
+20.000.000
+20.000.000
+20.000.000
+eKYC3
+50.000.000
+100.000.000
+Không giới hạn
+Không giới hạn
 
-=== 4. iBFT — CHUYỂN TIỀN RA NGÂN HÀNG ===
+4. iBFT — Chuyển tiền ra ngân hàng
+4.1 Mô tả
+iBFT cho phép chuyển tiền từ ví Zalopay đến tài khoản ngân hàng bên ngoài.
 
-4.2 Điều kiện giao dịch:
-| Thuộc tính | Giá trị |
-|-----------|---------|
-| Min amount | 2.000 VND |
-| Max amount | 20.000.000 VND |
-| Điều kiện Sender | eKYC2 trở lên (eKYC2, eKYC3) — KYC2 (liên kết bank) KHÔNG được dùng iBFT |
-| Inquiry limit | 50 lần/giờ · 80 lần/ngày |
+4.2 Điều kiện giao dịch
+Thuộc tính
+Giá trị
+Min amount
+2.000 VND
+Max amount
+20.000.000 VND
+Điều kiện Sender
+eKYC2 trở lên (eKYC2, eKYC3) — KYC2 (liên kết bank) KHÔNG được dùng iBFT
+Inquiry limit
+50 lần/giờ · 80 lần/ngày
 
-⚠️ QUAN TRỌNG: KYC2 (liên kết ngân hàng) KHÔNG được phép dùng iBFT. Chỉ eKYC2 và eKYC3 mới được.
+4.3 Đích đến
+Số thẻ ngân hàng
+Số tài khoản ngân hàng
+Acc alias (định danh tài khoản)
 
-4.3 Đích đến:
-- Số thẻ ngân hàng
-- Số tài khoản ngân hàng
-- Acc alias (định danh tài khoản)
+4.4 Cách nhập thông tin receiver
+Scan VietQR: quét mã QR VietQR để tự động điền thông tin
+Nhập tay (input data): nhập số thẻ, số tài khoản, hoặc acc alias
+Suggest list: danh sách gợi ý từ trang home
+Saved list: danh sách tài khoản đã lưu
 
-4.4 Cách nhập thông tin receiver:
-- Scan VietQR: quét mã QR VietQR để tự động điền thông tin
-- Nhập tay: nhập số thẻ, số tài khoản, hoặc acc alias
-- Suggest list: danh sách gợi ý từ trang home
-- Saved list: danh sách tài khoản đã lưu
+4.5 Chính sách phí
+Nguồn tiền
+Chính sách
+Ghi chú
+Ví điện tử + Tài khoản ngân hàng (Bank)
+Miễn phí trong 5.000.000 VND/tháng — TỔNG CỘNG cả 2 nguồn. Vượt quota → tính phí.
+Quota dùng chung, reset đầu tháng
+SDSL
+Miễn phí hoàn toàn, không giới hạn.
+Không tính vào quota
 
-4.5 Chính sách phí:
-| Nguồn tiền | Chính sách | Ghi chú |
-|-----------|-----------|---------|
-| Ví điện tử + Tài khoản ngân hàng (Bank) | Miễn phí trong 5.000.000 VND/tháng — TỔNG CỘNG cả 2 nguồn. Vượt quota → tính phí. | Quota dùng CHUNG, reset đầu tháng |
-| SDSL | Miễn phí hoàn toàn, không giới hạn. | Không tính vào quota |
+Lưu ý Phí
+Quota 5M/tháng là TỔNG CỘNG của cả nguồn ví lẫn nguồn bank. Ví dụ: đã dùng 3M từ ví + 2M từ bank = hết quota. SDSL luôn miễn phí, không liên quan quota.
 
-⚠️ QUAN TRỌNG VỀ PHÍ: Quota 5M/tháng là TỔNG CỘNG của cả nguồn ví lẫn nguồn bank (KHÔNG phải riêng biệt từng nguồn).
-- Ví dụ: đã dùng 3M từ ví + 2M từ bank = hết 5M quota → tính phí tiếp theo
-- SDSL luôn miễn phí, không liên quan quota.
+4.6 Hạn mức theo KYC
+KYC
+Fund-out/ngày
+Fund-out/tháng
+Fund-in/ngày
+Fund-in/tháng
+eKYC2 / KYC2
+20.000.000
+20.000.000
+20.000.000
+20.000.000
+eKYC3
+50.000.000
+100.000.000
+Không giới hạn
+Không giới hạn
 
-4.6 Hạn mức theo KYC:
-| KYC | Fund-out/ngày | Fund-out/tháng | Fund-in/ngày | Fund-in/tháng |
-|-----|--------------|---------------|-------------|--------------|
-| eKYC2 / KYC2 | 20.000.000 | 20.000.000 | 20.000.000 | 20.000.000 |
-| eKYC3 | 50.000.000 | 100.000.000 | Không giới hạn | Không giới hạn |
+5. QR Code — Nhận tiền qua mã QR
+5.1 Mô tả
+Tính năng QR Code cho phép người dùng tạo mã QR để nhận tiền, từ cả ứng dụng Zalopay lẫn các ứng dụng bên ngoài.
 
-=== 5. QR CODE — NHẬN TIỀN QUA MÃ QR ===
-
-5.2 Cách thức hoạt động:
-- Zalopay scan QR: thực hiện giao dịch P2P nội bộ
-- App khác scan QR: thực hiện giao dịch liên ngân hàng
+5.2 Cách thức hoạt động
+Zalopay scan QR: thực hiện giao dịch P2P nội bộ
+App khác scan QR: thực hiện giao dịch liên ngân hàng
 
 5.3 Rule tạo QR = Rule nhận tiền P2P
+Thuộc tính
+Giá trị
+Min amount
+1.000 VND
+Max amount / giao dịch
+20.000.000 VND
+Điều kiện Receiver
+KYC ≥ 2
+Fund-in eKYC2 / KYC2
+20.000.000 VND/ngày, 20.000.000 VND/tháng
+Fund-in eKYC3
+Không giới hạn
 
-5.4 Đích nhận tiền (có thể setting):
-| Đích nhận | Hạn mức | Ghi chú |
-|----------|---------|---------|
-| Ví điện tử | Theo hạn mức fund-in P2P (KYC level) | Rule P2P áp dụng |
-| SDSL | Tối đa 100.000.000 VND | Không phụ thuộc KYC |
+5.4 Đích nhận tiền (có thể setting)
+Người dùng có thể chọn đích nhận tiền khi tạo QR:
+Đích nhận
+Hạn mức
+Ghi chú
+Ví điện tử
+Theo hạn mức fund-in P2P (KYC level)
+Rule P2P áp dụng
+SDSL
+Tối đa 20.000.000 VND
+Không phụ thuộc KYC fund-in
 
-QR Code SDSL: Khi receiver chọn đích SDSL → hạn mức 100M/giao dịch. Boundary: 100M pass, 100M+1 fail.
+6. Ràng buộc & Edge Case quan trọng
+6.1 Amount validation
+Amount = 0: từ chối
+Amount không phải số nguyên (VD: 1000.5): cần xử lý/validate
+Amount dưới min từng loại: từ chối với error message rõ ràng
+Amount vượt max/giao dịch (20M): từ chối
 
-=== 6. RÀNG BUỘC & EDGE CASE QUAN TRỌNG ===
+6.2 Hạn mức tích lũy
+Fund-out và fund-in là hai hạn mức độc lập
+Hạn mức ngày reset vào 00:00 mỗi ngày
+Hạn mức tháng reset vào ngày đầu tiên của tháng mới
+Quota phí iBFT (5M/tháng) reset độc lập theo tháng
 
-6.1 Amount validation:
-- Amount = 0 hoặc âm: từ chối
-- Amount không phải số nguyên (VD: 1000.5): cần xử lý/validate
-- Amount dưới min từng loại: từ chối với error message rõ ràng
-- Amount vượt max/giao dịch (20M): từ chối
+6.3 Giao dịch đồng thời (Concurrent)
+Cần đảm bảo không trừ tiền 2 lần khi có concurrent transactions
+Network timeout giữa chừng: phải rollback, không trừ tiền
 
-6.2 Hạn mức tích lũy:
-- Fund-out và fund-in là hai hạn mức ĐỘC LẬP
-- Hạn mức ngày reset vào 00:00 mỗi ngày
-- Hạn mức tháng reset vào ngày đầu tiên của tháng mới
-- Quota phí iBFT (5M/tháng) reset độc lập theo tháng
+6.4 Inquiry limit (iBFT)
+Giới hạn 50 lần tra cứu/giờ và 80 lần/ngày (độc lập)
+Vi phạm bất kỳ ngưỡng nào: chặn inquiry, hiển thị error
+Counter reset: đầu giờ mới (hourly) và 00:00 ngày mới
 
-6.3 Giao dịch đồng thời (Concurrent):
-- Đảm bảo không trừ tiền 2 lần khi có concurrent transactions
-- Network timeout giữa chừng: phải rollback, không trừ tiền
+QR Code SDSL
+Khi receiver chọn đích SDSL: max amount 20.000.000 VND/giao dịch (giống rule chung). Boundary test: 20M pass, 20M+1 fail.
 
-6.4 Inquiry limit (iBFT):
-- Giới hạn 50 lần/giờ và 80 lần/ngày (ĐỘC LẬP nhau)
-- Vi phạm bất kỳ ngưỡng nào: chặn inquiry, hiển thị error
-- Counter reset: đầu giờ mới (hourly) và 00:00 ngày mới
+7. Test Cases — P2P
+7.1 Điều kiện KYC — Sender
+#
+Scenario
+Expected Result
+Ghi chú
+1
+Sender chưa KYC
+Bị chặn, redirect định danh
 
-=== 7. GLOSSARY ===
-| Thuật ngữ | Định nghĩa |
-|----------|-----------|
-| P2P | Peer-to-Peer — chuyển tiền nội bộ giữa các ví Zalopay |
-| iBFT | Interbank Fund Transfer — chuyển tiền ra tài khoản ngân hàng |
-| eKYC2 | Level 2 do định danh điện tử. Fund-out 20M/ngày, 20M/tháng |
-| KYC2 | Level 2 do liên kết tài khoản ngân hàng. Fund-out 20M/ngày, 20M/tháng. KHÔNG được dùng iBFT |
-| eKYC3 | Level 3 do định danh điện tử. Fund-out 50M/ngày, 100M/tháng. Fund-in không giới hạn |
-| Fund-out | Tiền ra khỏi ví (chuyển đi) |
-| Fund-in | Tiền vào ví (nhận về) |
-| SDSL | Đích nhận tiền thay thế ví điện tử khi dùng QR Code, tối đa 100M/giao dịch. Miễn phí hoàn toàn với iBFT |
-| Acc alias | Định danh tài khoản ngân hàng thay thế số tài khoản/thẻ |
-| VietQR | Chuẩn QR Code liên ngân hàng Việt Nam |
-| Inquiry | Tra cứu thông tin tài khoản ngân hàng trong luồng iBFT |
+2
+Sender KYC lv1
+Bị chặn
+
+3
+Sender eKYC2
+Pass
+Hạn mức 20M/ngày, 20M/tháng
+4
+Sender KYC2 (liên kết bank)
+Pass
+Hạn mức 20M/ngày, 20M/tháng
+5
+Sender eKYC3
+Pass
+Hạn mức 50M/ngày, 100M/tháng
+
+7.2 Điều kiện KYC — Receiver
+#
+Scenario
+Expected Result
+Ghi chú
+6
+Receiver chưa KYC
+Bị chặn
+Error message rõ lý do receiver
+7
+Receiver KYC lv1
+Bị chặn
+
+8
+Receiver eKYC2
+Pass
+
+9
+Receiver KYC2 (liên kết bank)
+Pass
+
+10
+Receiver eKYC3
+Pass
+
+7.3 Amount Boundary
+#
+Scenario
+Expected Result
+Ghi chú
+11
+Amount = 0
+Từ chối
+Invalid input
+12
+Amount thập phân (e.g. 1000.5)
+Từ chối / validate
+Làm tròn hay reject?
+13
+Amount = 999 VND
+Từ chối
+Dưới min (1.000 VND)
+14
+Amount = 1.000 VND
+Pass
+Đúng min — boundary
+15
+Amount = 1.001 VND
+Pass
+Min + 1
+16
+Amount = 19.999.999 VND
+Pass
+Max - 1
+17
+Amount = 20.000.000 VND
+Pass
+Đúng max — boundary
+18
+Amount = 20.000.001 VND
+Từ chối
+Vượt max
+
+7.4 Hạn mức eKYC2 / KYC2 — Fund-out
+#
+Scenario
+Expected Result
+Ghi chú
+20
+Fund-out ngày = 19.999.999, chuyển thêm 1 VND
+Pass (tổng = 20M)
+Boundary ngày
+21
+Fund-out ngày = 20.000.000, chuyển thêm 1 VND
+Bị chặn
+Vượt 20M/ngày
+22
+Fund-out tháng = 19.999.999, chuyển thêm 1 VND
+Pass (tổng = 20M)
+Boundary tháng
+23
+Fund-out tháng = 20.000.000, chuyển thêm 1 VND
+Bị chặn
+Vượt 20M/tháng
+24
+Reset hạn mức ngày lúc 00:00
+Fund-out ngày reset về 0
+Verify giao dịch đầu ngày mới
+25
+Reset hạn mức tháng đầu tháng mới
+Fund-out tháng reset về 0
+Verify giao dịch đầu tháng
+
+7.5 Hạn mức eKYC3 — Fund-out
+#
+Scenario
+Expected Result
+Ghi chú
+26
+Fund-out ngày = 49.999.999, chuyển thêm 1 VND
+Pass (tổng = 50M)
+Boundary ngày
+27
+Fund-out ngày = 50.000.000, chuyển thêm 1 VND
+Bị chặn
+Vượt 50M/ngày
+28
+Fund-out tháng = 99.999.999, chuyển thêm 1 VND
+Pass (tổng = 100M)
+Boundary tháng
+29
+Fund-out tháng = 100.000.000, chuyển thêm 1 VND
+Bị chặn
+Vượt 100M/tháng
+
+7.6 Hạn mức Fund-in
+#
+Scenario
+Expected Result
+Ghi chú
+30
+eKYC2/KYC2: fund-in ngày = 20M, nhận thêm 1 VND
+Bị chặn
+Vượt 20M/ngày
+31
+eKYC2/KYC2: fund-in tháng = 20M, nhận thêm 1 VND
+Bị chặn
+Vượt 20M/tháng
+32
+eKYC3: nhận bất kỳ số tiền lớn
+Pass
+Fund-in không giới hạn
+
+7.7 Cách nhập Receiver
+#
+Scenario
+Expected Result
+Ghi chú
+33
+Nhập tay SĐT hợp lệ
+Lookup đúng receiver
+
+34
+Nhập tay SĐT không tồn tại
+Error message rõ ràng
+
+35
+Chọn từ Suggest list
+Điền đúng thông tin receiver
+
+36
+Chọn từ Contact list
+Điền đúng thông tin receiver
+
+7.8 Edge Case
+#
+Scenario
+Expected Result
+Ghi chú
+37
+Chuyển cho chính mình
+Xử lý đúng
+Confirm rule: cho phép hay từ chối?
+38
+Số dư không đủ
+Error message rõ ràng
+
+39
+Network timeout giữa chừng
+Rollback, không trừ tiền
+
+40
+2 giao dịch concurrent, tổng vượt hạn mức
+Chỉ 1 giao dịch pass
+Race condition
+41
+Giao dịch đúng giây reset 00:00
+Hạn mức tính đúng
+Timezone edge case
+
+8. Test Cases — iBFT
+8.1 Điều kiện KYC — Sender
+#
+Scenario
+Expected Result
+Ghi chú
+1
+Sender chưa KYC
+Bị chặn
+Redirect định danh
+2
+Sender KYC lv1
+Bị chặn
+
+3
+Sender KYC2 (liên kết bank)
+Bị chặn
+KYC2 không được dùng iBFT
+4
+Sender eKYC2 (định danh)
+Pass
+Hạn mức 20M/ngày, 20M/tháng
+5
+Sender eKYC3
+Pass
+Hạn mức 50M/ngày, 100M/tháng
+
+8.2 Amount Boundary
+#
+Scenario
+Expected Result
+Ghi chú
+6
+Amount = 0
+Từ chối
+Invalid input
+7
+Amount = 1.999 VND
+Từ chối
+Dưới min iBFT (2.000 VND)
+8
+Amount = 2.000 VND
+Pass
+Đúng min — boundary
+9
+Amount = 2.001 VND
+Pass
+Min + 1
+10
+Amount = 19.999.999 VND
+Pass
+Max - 1
+11
+Amount = 20.000.000 VND
+Pass
+Đúng max — boundary
+12
+Amount = 20.000.001 VND
+Từ chối
+Vượt max
+
+8.3 Hạn mức eKYC2 — Fund-out
+#
+Scenario
+Expected Result
+Ghi chú
+14
+Fund-out ngày = 19.999.999, chuyển thêm 1 VND
+Pass (tổng = 20M)
+Boundary ngày
+15
+Fund-out ngày = 20.000.000, chuyển thêm 1 VND
+Bị chặn
+Vượt 20M/ngày
+16
+Fund-out tháng = 19.999.999, chuyển thêm 1 VND
+Pass (tổng = 20M)
+Boundary tháng
+17
+Fund-out tháng = 20.000.000, chuyển thêm 1 VND
+Bị chặn
+Vượt 20M/tháng
+
+8.4 Hạn mức eKYC3 — Fund-out
+#
+Scenario
+Expected Result
+Ghi chú
+18
+Fund-out ngày = 49.999.999, chuyển thêm 1 VND
+Pass (tổng = 50M)
+Boundary ngày
+19
+Fund-out ngày = 50.000.000, chuyển thêm 1 VND
+Bị chặn
+Vượt 50M/ngày
+20
+Fund-out tháng = 99.999.999, chuyển thêm 1 VND
+Pass (tổng = 100M)
+Boundary tháng
+21
+Fund-out tháng = 100.000.000, chuyển thêm 1 VND
+Bị chặn
+Vượt 100M/tháng
+
+8.5 Cách nhập Receiver
+#
+Scenario
+Expected Result
+Ghi chú
+22
+Scan VietQR hợp lệ
+Auto điền đúng thông tin receiver
+
+23
+Scan VietQR không hợp lệ
+Error message rõ ràng
+
+24
+Nhập tay số thẻ hợp lệ
+Lookup thành công
+
+25
+Nhập tay số tài khoản hợp lệ
+Lookup thành công
+
+26
+Nhập tay acc alias hợp lệ
+Lookup thành công
+
+27
+Nhập tay tài khoản không tồn tại
+Error message rõ ràng
+
+28
+Chọn từ Suggest list
+Điền đúng thông tin receiver
+
+29
+Chọn từ Saved list
+Điền đúng thông tin receiver
+
+8.6 Inquiry Limit
+#
+Scenario
+Expected Result
+Ghi chú
+30
+Inquiry lần thứ 50 trong giờ
+Pass
+Boundary 50/giờ
+31
+Inquiry lần thứ 51 trong giờ
+Bị chặn
+Vượt 50/giờ
+32
+Inquiry lần thứ 80 trong ngày
+Pass
+Boundary 80/ngày
+33
+Inquiry lần thứ 81 trong ngày
+Bị chặn
+Vượt 80/ngày
+34
+Reset counter đầu giờ mới
+Inquiry counter /giờ reset về 0
+
+35
+Reset counter 00:00 ngày mới
+Inquiry counter /ngày reset về 0
+
+8.7 Phí iBFT
+#
+Scenario
+Expected Result
+Ghi chú
+36
+Đầu tháng, dùng nguồn ví 2M, rồi nguồn bank 3M (tổng = 5M)
+Cả 2 giao dịch miễn phí
+Quota dùng chung ví+bank
+37
+Tổng ví+bank vừa đạt đúng 5M
+Miễn phí
+Boundary quota
+38
+Tổng ví+bank = 4.9M, giao dịch ví thêm 200K (tổng > 5M)
+Tính phí phần vượt
+Vượt quota chung
+39
+Tổng ví+bank = 4.9M, giao dịch bank thêm 200K (tổng > 5M)
+Tính phí phần vượt
+Bank cũng tính vào quota chung
+40
+Đầu tháng mới — quota reset về 0
+Miễn phí lại từ đầu
+Monthly reset
+41
+Nguồn SDSL, đã hết quota ví+bank
+Miễn phí hoàn toàn
+SDSL độc lập quota
+42
+Nguồn SDSL, giao dịch lớn bất kỳ
+Miễn phí
+Không giới hạn
+43
+UI hiển thị phí và quota còn lại trước confirm
+Hiển thị đúng
+
+44
+Lịch sử giao dịch ghi nhận phí
+Ghi đúng loại phí
+
+8.8 Edge Case
+#
+Scenario
+Expected Result
+Ghi chú
+45
+Network timeout giữa chừng
+Rollback, không trừ tiền
+
+46
+2 giao dịch concurrent vượt hạn mức
+Chỉ 1 pass
+Race condition
+47
+Giao dịch đúng giây reset 00:00
+Hạn mức tính đúng
+Timezone edge case
+
+9. Test Cases — QR Code
+9.1 Tạo QR & Luồng cơ bản
+#
+Scenario
+Expected Result
+Ghi chú
+1
+Tạo QR, Zalopay scan → P2P
+Giao dịch P2P thành công
+Happy path
+2
+Tạo QR, app ngoài scan
+Nhận tiền thành công
+Liên ngân hàng
+3
+Receiver KYC lv1
+Không tạo được QR / không nhận được
+KYC < 2
+4
+Receiver chưa KYC
+Không tạo được QR / không nhận được
+
+5
+Receiver eKYC2 tạo QR
+Tạo thành công
+KYC ≥ 2
+6
+Receiver KYC2 tạo QR
+Tạo thành công
+KYC ≥ 2
+7
+Receiver eKYC3 tạo QR
+Tạo thành công
+KYC ≥ 2
+
+9.2 Amount Boundary
+#
+Scenario
+Expected Result
+Ghi chú
+8
+Amount = 999 VND
+Từ chối
+Dưới min 1.000 VND
+9
+Amount = 1.000 VND
+Pass
+Đúng min — boundary
+10
+Amount = 20.000.000 VND
+Pass
+Đúng max — boundary
+11
+Amount = 20.000.001 VND
+Từ chối
+Vượt max/giao dịch
+
+9.3 Đích nhận — Ví điện tử
+#
+Scenario
+Expected Result
+Ghi chú
+12
+Setting đích = Ví, tiền vào đúng ví
+Tiền vào ví điện tử
+
+13
+Receiver eKYC2, fund-in ngày = 19.5M, nhận thêm 1M
+Bị chặn (tổng 20.5M > 20M/ngày)
+Rule P2P fund-in
+14
+Receiver eKYC2, fund-in tháng = 20M, nhận thêm 1 VND
+Bị chặn
+Vượt 20M/tháng
+15
+Receiver eKYC3, nhận số tiền lớn bất kỳ
+Pass
+Fund-in eKYC3 không giới hạn
+
+9.4 Đích nhận — SDSL
+#
+Scenario
+Expected Result
+Ghi chú
+16
+Setting đích = SDSL, tiền vào đúng SDSL
+Tiền vào SDSL
+Happy path
+17
+SDSL: amount = 19.999.999 VND
+Pass
+Max - 1
+18
+SDSL: amount = 20.000.000 VND
+Pass
+Đúng max — boundary
+19
+SDSL: amount = 20.000.001 VND
+Từ chối
+Vượt max amount 20M
+
+9.5 Setting & Edge Case
+#
+Scenario
+Expected Result
+Ghi chú
+20
+Đổi setting ví → SDSL
+QR cập nhật đúng đích mới
+
+21
+Đổi setting SDSL → ví
+QR cập nhật đúng đích mới
+
+22
+QR dùng lại nhiều lần
+Verify behavior (one-time hay reusable)
+Confirm rule
+23
+QR hết hạn (nếu có TTL)
+Xử lý đúng, thông báo rõ ràng
+
+11. Checklist QE Transfer
+Danh sách kiểm tra đầy đủ cho QE khi thực hiện testing tính năng Transfer. Đánh dấu từng mục khi đã hoàn thành.
+
+11.1 P2P — Điều kiện & Luồng chính
+✓
+Checklist item
+1
+Happy path: eKYC2 sender → eKYC2 receiver (cả hai KYC ≥ 2)
+2
+Happy path: KYC2 sender → eKYC3 receiver
+3
+Happy path: eKYC3 sender → KYC2 receiver
+4
+Sender KYC lv1 → bị chặn, không được chuyển
+5
+Receiver KYC lv1 → bị chặn, không nhận được
+6
+Sender chưa KYC → bị chặn
+7
+Receiver chưa KYC → bị chặn
+8
+Chuyển cho chính mình → xử lý đúng
+9
+Số dư không đủ → error message rõ ràng
+
+11.2 P2P — Amount & Hạn mức
+✓
+Checklist item
+1
+Min boundary: 999 VND → fail | 1.000 VND → pass
+2
+Max boundary: 20.000.000 VND → pass | 20.000.001 VND → fail
+3
+Amount = 0 → từ chối
+4
+eKYC2/KYC2 fund-out vượt 20M/ngày → chặn
+5
+eKYC2/KYC2 fund-out vượt 20M/tháng → chặn
+6
+eKYC3 fund-out vượt 50M/ngày → chặn
+7
+eKYC3 fund-out vượt 100M/tháng → chặn
+8
+eKYC2/KYC2 fund-in vượt 20M/ngày → chặn
+9
+eKYC2/KYC2 fund-in vượt 20M/tháng → chặn
+10
+Reset hạn mức ngày lúc 00:00
+11
+Reset hạn mức tháng đầu tháng mới
+
+11.3 P2P — Cách nhập Receiver
+✓
+Checklist item
+1
+Nhập tay số điện thoại → lookup receiver thành công
+2
+Nhập tay số không tồn tại → error message
+3
+Chọn từ Suggest list → điền đúng thông tin receiver
+4
+Chọn từ Contact list → điền đúng thông tin receiver
+
+11.4 iBFT — Điều kiện & Luồng chính
+✓
+Checklist item
+1
+Happy path qua số thẻ — eKYC2
+2
+Happy path qua số tài khoản — eKYC2
+3
+Happy path qua acc alias — eKYC3
+4
+Sender KYC lv1 → bị chặn
+5
+Sender KYC2 (liên kết bank) → bị chặn (không được dùng iBFT)
+6
+Sender eKYC2 → pass
+7
+Min boundary: 1.999 VND → fail | 2.000 VND → pass
+8
+Max boundary: 20.000.000 VND → pass | 20.000.001 VND → fail
+9
+eKYC2 fund-out vượt 20M/ngày → chặn
+10
+eKYC3 fund-out vượt 50M/ngày → chặn
+11
+eKYC3 fund-out vượt 100M/tháng → chặn
+12
+Số tài khoản không tồn tại → error message rõ ràng
+13
+Network timeout → rollback, không trừ tiền
+
+11.5 iBFT — Input Method & Inquiry
+✓
+Checklist item
+1
+Scan VietQR → auto điền đúng thông tin receiver
+2
+Nhập tay số thẻ → lookup thành công
+3
+Nhập tay số tài khoản → lookup thành công
+4
+Nhập tay acc alias → lookup thành công
+5
+Chọn từ Suggest list → điền đúng
+6
+Chọn từ Saved list → điền đúng
+7
+Inquiry lần 50 trong giờ → pass (boundary)
+8
+Inquiry lần 51 trong giờ → fail (vượt 50/giờ)
+9
+Inquiry lần 80 trong ngày → pass (boundary)
+10
+Inquiry lần 81 trong ngày → fail (vượt 80/ngày)
+11
+Reset inquiry counter đầu giờ mới
+12
+Reset inquiry counter 00:00 ngày mới
+
+11.6 iBFT — Phí
+✓
+Checklist item
+1
+Nguồn ví + bank: đầu tháng còn quota → miễn phí
+2
+Nguồn ví 2M + bank 3M = tổng 5M → vừa đạt boundary quota
+3
+Nguồn ví + bank: tổng vượt 5M → tính phí phần vượt
+4
+Nguồn ví + bank: tháng mới → quota chung reset về 0
+5
+Nguồn SDSL: miễn phí dù đã hết quota ví/bank
+6
+Nguồn SDSL: giao dịch lớn tùy ý vẫn miễn phí
+7
+UI hiển thị đúng phí trước khi confirm
+8
+Lịch sử giao dịch ghi nhận đúng loại phí
+
+11.7 QR Code
+✓
+Checklist item
+1
+Happy path: tạo QR, Zalopay scan → P2P thành công
+2
+Happy path: tạo QR, app ngoài scan → nhận tiền thành công
+3
+Receiver KYC lv1 → không tạo được QR / không nhận được
+4
+QR đích ví: receiver eKYC2 vượt fund-in 20M/ngày → chặn
+5
+QR đích ví: receiver eKYC3 fund-in không giới hạn → pass
+6
+Setting đích → Ví điện tử: tiền vào ví đúng
+7
+Setting đích → SDSL: tiền vào SDSL đúng
+8
+SDSL: 20.000.000 VND → pass (boundary max)
+9
+SDSL: 20.000.001 VND → fail (vượt max amount)
+10
+Đổi setting ví ↔ SDSL → QR cập nhật đúng đích
+11
+Min amount QR: 999 VND → fail | 1.000 VND → pass
+
+11.8 Edge Case & Concurrent
+✓
+Checklist item
+1
+Amount thập phân (e.g. 1000.5) → validate / từ chối
+2
+Giao dịch đúng giây reset hạn mức (00:00) → verify đúng
+3
+Concurrent: 2 giao dịch gửi đồng thời → không trừ tiền 2 lần
+4
+Concurrent: tổng 2 giao dịch vượt hạn mức → chỉ 1 pass
+
+12. Glossary
+Thuật ngữ
+Định nghĩa
+P2P
+Peer-to-Peer — chuyển tiền nội bộ giữa các ví Zalopay
+iBFT
+Interbank Fund Transfer — chuyển tiền ra tài khoản ngân hàng
+eKYC2
+Level 2 do định danh điện tử (eKYC). Fund-out 20M/ngày, 20M/tháng
+KYC2
+Level 2 do liên kết tài khoản ngân hàng. Fund-out 20M/ngày, 20M/tháng
+eKYC3
+Level 3 do định danh điện tử. Fund-out 50M/ngày, 100M/tháng. Fund-in không giới hạn
+Fund-out
+Tiền ra khỏi ví (chuyển đi)
+Fund-in
+Tiền vào ví (nhận về)
+SDSL
+SDSL — nguồn tiền từ quỹ tiền tệ, miễn phí iBFT hoàn toàn
+SDSL
+Đích nhận tiền thay thế ví điện tử khi dùng QR Code. Max amount 20M/giao dịch (rule chung)
+Acc alias
+Định danh tài khoản ngân hàng thay thế số tài khoản/thẻ
+VietQR
+Chuẩn QR Code liên ngân hàng Việt Nam
+Inquiry
+Tra cứu thông tin tài khoản ngân hàng trong luồng iBFT
+
