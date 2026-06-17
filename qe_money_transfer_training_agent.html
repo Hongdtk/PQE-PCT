@@ -280,6 +280,10 @@ function mdToHtml(text) {
     .replace(/\*(.*?)\*/g,'<em>$1</em>')
     .replace(/`(.*?)`/g,'<code>$1</code>');
 
+  // Strip code fences (```lang ... ```) — render content as markdown, not code
+  text = text.replace(/^```[^\n]*\n([\s\S]*?)```/gm, (_, inner) => inner.trim());
+  text = text.replace(/^```[^\n]*/gm, ''); // strip unclosed fences
+
   const lines = text.split('\n');
   const tcRe = /^(\*\*TC[\s\-]?\d+|\d+\.\s+\*\*TC[\s\-]?\d+|#{1,4}\s+TC[\s\-]?\d+)/i;
   const secRe = /^[✅❌⚠️🔴🟢]/u;
