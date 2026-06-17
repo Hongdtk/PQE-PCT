@@ -191,7 +191,7 @@ const I18N = {
     botStatusTxt: 'Online · Money Transfer',
     headerGreeting: 'Xin chào! Tôi hỗ trợ đào tạo QE về nghiệp vụ chuyển tiền, test case và mô phỏng tình huống thực tế.',
     modes: ['Tất cả','Nghiệp vụ','Test case','🧠 Quiz'],
-    welcome: 'Xin chào! Tôi là **QE Training Agent**.\n\nTôi có thể giúp bạn:\n• Nghiệp vụ P2P · iBFT · QR Code\n• Viết test case và test scenario',
+    welcome: 'Xin chào! Tôi là **QE Training Agent**.\n\nTôi có thể giúp bạn:\n• **Nghiệp vụ** — P2P · iBFT · QR Code (hạn mức, KYC, phí, edge case)\n• **Test case** — sinh TC valid & invalid đầy đủ 5 trường\n• **Quiz** — trắc nghiệm + AI chấm điểm tình huống thực tế\n• **Feature cards** — tra nhanh thông số P2P · iBFT · QR Code',
     quick: {
       all:[['📋 P2P','__fc:p2p'],['📋 iBFT','__fc:ibft'],['📋 QR Code','__fc:qr'],['Nghiệp vụ P2P','Quy trình chuyển tiền P2P nội bộ là gì?']],
       nghiep_vu:[['Hạn mức','Hạn mức chuyển tiền và các quy định liên quan?'],['Trạng thái GD','Các trạng thái của một giao dịch chuyển tiền?'],['Rollback','Khi nào giao dịch bị rollback và quy trình hoàn tiền?']],
@@ -381,8 +381,8 @@ function mdToHtml(text) {
       }
       out.push('</ul>'); continue;
     }
-    // blank line
-    if (line.trim() === '') { out.push('<br>'); i++; continue; }
+    // blank line — skip silently (no <br>, prevents large gaps)
+    if (line.trim() === '') { i++; continue; }
     // paragraph
     out.push(`<p>${inline(line)}</p>`);
     i++;
