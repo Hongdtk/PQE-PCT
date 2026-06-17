@@ -154,7 +154,6 @@ Nếu mode được chỉ định trong message, tập trung vào chủ đề đ
 MODE_LABELS = {
     "nghiep_vu": "nghiệp vụ chuyển tiền",
     "test_case": "test case/testing",
-    "scenario": "mô phỏng tình huống",
     "quiz": "quiz/đánh giá kiến thức",
 }
 

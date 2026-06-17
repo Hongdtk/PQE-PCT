@@ -162,7 +162,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <button class="mode-btn active" onclick="setMode('all',this)" id="modeAll">Tất cả</button>
     <button class="mode-btn" onclick="setMode('nghiep_vu',this)" id="modeNV">Nghiệp vụ</button>
     <button class="mode-btn" onclick="setMode('test_case',this)" id="modeTC">Test case</button>
-    <button class="mode-btn" onclick="setMode('scenario',this)" id="modeScen">Mô phỏng</button>
     <button class="mode-btn" onclick="setMode('quiz',this)" id="modeQuiz">🧠 Quiz</button>
   </div>
 
@@ -190,20 +189,19 @@ const I18N = {
     placeholder: 'Nhập câu hỏi...',
     botStatusTxt: 'Online · Money Transfer',
     headerGreeting: 'Xin chào! Tôi hỗ trợ đào tạo QE về nghiệp vụ chuyển tiền, test case và mô phỏng tình huống thực tế.',
-    modes: ['Tất cả','Nghiệp vụ','Test case','Mô phỏng','🧠 Quiz'],
+    modes: ['Tất cả','Nghiệp vụ','Test case','🧠 Quiz'],
     welcome: 'Xin chào! Tôi là **QE Training Agent**.\n\nTôi có thể giúp bạn:\n• Nghiệp vụ P2P · iBFT · QR Code\n• Viết test case và test scenario\n• Công cụ & môi trường test\n• Mô phỏng tình huống thực tế',
     quick: {
       all:[['📋 P2P','__fc:p2p'],['📋 iBFT','__fc:ibft'],['📋 QR Code','__fc:qr'],['Nghiệp vụ P2P','Quy trình chuyển tiền P2P nội bộ là gì?']],
       nghiep_vu:[['Hạn mức','Hạn mức chuyển tiền và các quy định liên quan?'],['Trạng thái GD','Các trạng thái của một giao dịch chuyển tiền?'],['Rollback','Khi nào giao dịch bị rollback và quy trình hoàn tiền?']],
       test_case:[['Happy path','Viết test case happy path cho chuyển tiền nội địa'],['API test','Cấu trúc test case API cho endpoint chuyển tiền?']],
-      scenario:[['Bắt đầu','Cho tôi một scenario thực tế để luyện tập test'],['Lỗi bất thường','Mô phỏng: giao dịch trừ tiền nhưng không có biên lai'],['Performance','Scenario: hệ thống chậm giờ cao điểm, tôi test gì?'],['Security','Scenario: kiểm tra bảo mật cho luồng chuyển tiền']],
       quiz:[['🔁 Làm lại','__quiz:start'],['🎯 Hỏi AI','Tạo 1 câu hỏi scenario khó về nghiệp vụ transfer (P2P/iBFT/QR) để tôi luyện tập, sau đó đánh giá câu trả lời của tôi']]
     }
   },
 };
 
-const MODE_KEYS = ['all','nghiep_vu','test_case','scenario','quiz'];
-const MODE_IDS  = ['modeAll','modeNV','modeTC','modeScen','modeQuiz'];
+const MODE_KEYS = ['all','nghiep_vu','test_case','quiz'];
+const MODE_IDS  = ['modeAll','modeNV','modeTC','modeQuiz'];
 
 let mode = 'all';
 let history = [];
