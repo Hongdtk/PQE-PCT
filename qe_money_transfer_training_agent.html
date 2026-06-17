@@ -476,61 +476,19 @@ async function sendMsg() {
   showTyping();
 
   try {
-    const resp = await fetch('/chat', {
+    const resp = await fetch(AGENT_ENDPOINT, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ message: text, mode, history: history.slice(-11) })
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
 
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-    let replyText = '';
-    let bubbleEl = null;
-    let rafId = null;
-    const chatEl = document.getElementById('chat');
-
-    const flush = () => {
-      rafId = null;
-      if (!bubbleEl) return;
-      bubbleEl.innerHTML = mdToHtml(replyText);
-      if (bubbleEl.innerHTML.includes('<table')) bubbleEl.classList.add('has-table');
-      const nearBottom = chatEl.scrollHeight - chatEl.scrollTop - chatEl.clientHeight < 120;
-      if (nearBottom) chatEl.scrollTop = chatEl.scrollHeight;
-    };
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const raw = line.slice(6).trim();
-        if (raw === '[DONE]') break;
-        try {
-          const { d } = JSON.parse(raw);
-          if (!d) continue;
-          replyText += d;
-          if (!bubbleEl) {
-            removeTyping();
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'msg bot';
-            msgDiv.innerHTML = `<div class="bot-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="11"/><circle cx="8.5" cy="15.5" r="1"/><circle cx="15.5" cy="15.5" r="1"/></svg></div><div class="bubble"></div>`;
-            chatEl.appendChild(msgDiv);
-            bubbleEl = msgDiv.querySelector('.bubble');
-          }
-          if (!rafId) rafId = requestAnimationFrame(flush);
-        } catch(_) {}
-      }
-    }
-    if (rafId) { cancelAnimationFrame(rafId); flush(); }
-
-    if (!bubbleEl) { removeTyping(); appendMsg('bot', 'Xin lỗi, có lỗi xảy ra.'); }
+    const data = await resp.json();
+    const reply = data.reply || 'Xin lỗi, có lỗi xảy ra.';
     history.push({role:'user', content: text});
-    history.push({role:'assistant', content: replyText});
+    history.push({role:'assistant', content: reply});
+    removeTyping();
+    appendMsg('bot', reply);
   } catch (e) {
     removeTyping();
     appendMsg('bot', 'Xin lỗi, mất kết nối. Vui lòng thử lại.');
