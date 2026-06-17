@@ -227,7 +227,7 @@ def handler(payload: dict, context: RequestContext) -> dict:
         )
 
     base_messages.append({"role": "user", "content": user_content})
-    max_tokens = 3000 if is_tc_request else 1500
+    max_tokens = 5000 if is_tc_request else 1500
     response = get_client().chat.completions.create(
         model=os.environ.get("LLM_MODEL", "claude-sonnet-4-5"),
         max_tokens=max_tokens,
@@ -281,7 +281,7 @@ async def _stream_chat(request: Request):
         )
 
     base_messages.append({"role": "user", "content": user_content})
-    max_tokens = 3000 if is_tc_request else 1500
+    max_tokens = 5000 if is_tc_request else 1500
 
     def generate():
         stream = get_client().chat.completions.create(
