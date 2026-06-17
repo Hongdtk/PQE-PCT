@@ -379,7 +379,9 @@ function mdToHtml(text) {
           } else if (/^[-*•]\s/.test(s) || /^\d+[.)]\s/.test(s)) {
             if (!inUl) { bodyHtml += '<ul>'; inUl = true; }
             const raw2 = s.replace(/^[-*•]\s+|^\d+[.)]\s+/,'');
-            bodyHtml += `<li>${inline(raw2.replace(/^\[[ xX]\]\s*/i,''))}</li>`;
+            let liHtml = inline(raw2.replace(/^\[[ xX]\]\s*/i,''));
+            liHtml = liHtml.replace(/^(Precondition|Test data|Steps|Expected result|Note)\s*:/i, '<strong>$1:</strong>');
+            bodyHtml += `<li>${liHtml}</li>`;
           } else {
             if (inUl) { bodyHtml += '</ul>'; inUl = false; }
             if (s) bodyHtml += `<p>${inline(s)}</p>`;
