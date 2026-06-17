@@ -4,7 +4,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from greennode_agentbase import GreenNodeAgentBaseApp, RequestContext, PingStatus
 from starlette.routing import Route
-from starlette.responses import HTMLResponse, StreamingResponse
+from starlette.responses import HTMLResponse, StreamingResponse, JSONResponse
 from starlette.requests import Request
 
 load_dotenv()
@@ -22,6 +22,32 @@ def get_client():
             base_url=os.environ.get("LLM_BASE_URL", "https://maas-llm-aiplatform-hcm.api.vngcloud.vn/v1"),
         )
     return _client
+
+
+def _load_knowledge_base():
+    kb_path = os.path.join(os.path.dirname(__file__), "knowledge_base.json")
+    if os.path.exists(kb_path):
+        with open(kb_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {"modules": []}
+
+
+def _build_knowledge_section(kb: dict) -> str:
+    doc_type_label = {"confluence": "Confluence", "jira": "Jira", "tool": "Tool"}
+    lines = ["\n=== KIẾN THỨC ONBOARDING QE (Tài liệu nội bộ) ==="]
+    for module in kb.get("modules", []):
+        label = doc_type_label.get(module.get("docType", ""), "Tài liệu")
+        lines.append(f"\n{module['subtitle'].upper()}")
+        lines.append(f"📌 {label}: {module['docUrl']}")
+        for item in module.get("knowledge", []):
+            lines.append(f"• {item['text']}")
+            if item.get("explanation"):
+                lines.append(f"  → Giải thích: {item['explanation']}")
+    return "\n".join(lines)
+
+
+KNOWLEDGE_BASE = _load_knowledge_base()
+_KNOWLEDGE_SECTION = _build_knowledge_section(KNOWLEDGE_BASE)
 
 
 SYSTEM_PROMPT = """Bạn là QE Training Agent cho tính năng Transfer (chuyển tiền) trên ví điện tử Zalopay.
@@ -153,7 +179,7 @@ Ví dụ đầy đủ cho P2P:
 
 Phong cách: thân thiện, chuyên nghiệp, súc tích, dùng bullet point khi liệt kê.
 Ngôn ngữ: trả lời theo ngôn ngữ user hỏi (Tiếng Việt hoặc English).
-Nếu mode được chỉ định trong message, tập trung vào chủ đề đó."""
+Nếu mode được chỉ định trong message, tập trung vào chủ đề đó.""" + _KNOWLEDGE_SECTION
 
 MODE_LABELS = {
     "nghiep_vu": "nghiệp vụ chuyển tiền",
@@ -277,6 +303,22 @@ async def _stream_chat(request: Request):
     )
 
 
+async def _get_modules(request: Request):
+    modules = [
+        {
+            "id": m["id"],
+            "title": m["title"],
+            "subtitle": m["subtitle"],
+            "docUrl": m["docUrl"],
+            "docType": m.get("docType", ""),
+            "chips": m["chips"],
+        }
+        for m in KNOWLEDGE_BASE.get("modules", [])
+    ]
+    return JSONResponse({"modules": modules})
+
+
+app.router.routes.insert(0, Route("/modules", _get_modules, methods=["GET"]))
 app.router.routes.insert(0, Route("/chat", _stream_chat, methods=["POST"]))
 app.router.routes.insert(0, Route("/", _serve_ui, methods=["GET"]))
 

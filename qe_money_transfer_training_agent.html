@@ -117,9 +117,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
 @keyframes fadeStatus{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 
+/* MODULE TABS */
+.module-tabs{padding:8px 14px 0;display:flex;gap:6px;overflow-x:auto;flex-shrink:0;background:#fff;scrollbar-width:none}
+.module-tabs::-webkit-scrollbar{display:none}
+.mtab{font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid #dadce0;background:#fff;color:#5f6368;cursor:pointer;white-space:nowrap;transition:all 0.15s;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.mtab.active{background:#1a73e8;color:#fff;border-color:#1a73e8;font-weight:600}
+.mtab:hover:not(.active){background:#f1f3f4;border-color:#bbb}
+.mtab-link{display:inline-flex;align-items:center;opacity:.7;margin-left:2px}
+.mtab-link:hover{opacity:1}
 /* QUICK BTNS */
-.quick-btns{padding:8px 14px 4px;display:flex;flex-wrap:wrap;gap:6px;background:#fff}
-.qbtn{font-size:11.5px;padding:6px 12px;border-radius:16px;border:1px solid #dadce0;background:#fff;color:#1a73e8;cursor:pointer;transition:all 0.15s;font-weight:500}
+.quick-btns{padding:6px 14px 4px;display:flex;flex-wrap:wrap;gap:5px;background:#fff;min-height:32px}
+.qbtn{font-size:11.5px;padding:5px 11px;border-radius:16px;border:1px solid #dadce0;background:#fff;color:#1a73e8;cursor:pointer;transition:all 0.15s;font-weight:500}
 .qbtn:hover{background:#e8f0fe;border-color:#aecbfa}
 
 /* INPUT */
@@ -166,6 +174,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <button class="mode-btn" onclick="setMode('quiz',this)" id="modeQuiz">🧠 Quiz</button>
   </div>
 
+  <!-- MODULE TABS -->
+  <div class="module-tabs" id="moduleTabs"></div>
+
   <!-- CHAT -->
   <div class="chat" id="chat"></div>
 
@@ -207,6 +218,47 @@ const MODE_IDS  = ['modeAll','modeNV','modeTC','modeQuiz'];
 let mode = 'all';
 let history = [];
 let isTyping = false;
+let _modules = [];
+let _activeModuleId = null;
+
+const DOC_ICON = {
+  confluence: `<svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor"><path d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2zm7.5 2.5a.5.5 0 0 1 .5.5v1.5H11a.5.5 0 0 1 0 1H9.5V9a.5.5 0 0 1-1 0V7.5H7a.5.5 0 0 1 0-1h1.5V5a.5.5 0 0 1 .5-.5z"/></svg>`,
+  jira: `<svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor"><circle cx="8" cy="8" r="7.5" stroke="currentColor" stroke-width="1" fill="none"/><text x="8" y="11.5" text-anchor="middle" font-size="8" font-weight="bold">J</text></svg>`,
+  tool: `<svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/></svg>`,
+};
+
+async function loadModules() {
+  try {
+    const res = await fetch('/modules');
+    if (!res.ok) return;
+    const data = await res.json();
+    _modules = data.modules || [];
+    renderModuleTabs();
+  } catch (_) {}
+}
+
+function renderModuleTabs() {
+  const bar = document.getElementById('moduleTabs');
+  if (!_modules.length) { bar.style.display = 'none'; return; }
+  bar.innerHTML = _modules.map(m => {
+    const icon = DOC_ICON[m.docType] || DOC_ICON.tool;
+    return `<button class="mtab${_activeModuleId === m.id ? ' active' : ''}" onclick="selectModule(${m.id})">${m.title}<a class="mtab-link" href="${m.docUrl}" target="_blank" onclick="event.stopPropagation()" title="Mở tài liệu">${icon}</a></button>`;
+  }).join('');
+}
+
+function selectModule(id) {
+  _activeModuleId = (_activeModuleId === id) ? null : id;
+  renderModuleTabs();
+  renderModuleChips();
+}
+
+function renderModuleChips() {
+  const mod = _modules.find(m => m.id === _activeModuleId);
+  if (!mod) { updateQuickBtns(mode); return; }
+  const esc = s => s.replace(/'/g, "&#39;");
+  document.getElementById('quickBtns').innerHTML =
+    mod.chips.map(chip => `<button class="qbtn" onclick="sendQuick('${esc(chip)}')">${chip}</button>`).join('');
+}
 
 function applyI18n() {
   const t = I18N.vi;
@@ -215,17 +267,21 @@ function applyI18n() {
   document.getElementById('headerGreeting').textContent = t.headerGreeting;
   MODE_IDS.forEach((id, i) => { document.getElementById(id).textContent = t.modes[i]; });
   updateQuickBtns(mode);
+  loadModules();
 }
 
 function setMode(m, el) {
   mode = m;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
+  _activeModuleId = null;
+  renderModuleTabs();
   updateQuickBtns(m);
   if (m === 'quiz') startQuiz();
 }
 
 function updateQuickBtns(m) {
+  if (_activeModuleId) { renderModuleChips(); return; }
   const btns = I18N.vi.quick[m] || I18N.vi.quick.all;
   document.getElementById('quickBtns').innerHTML = btns.map(([label, q]) => {
     if (q.startsWith('__fc:')) return `<button class="qbtn" onclick="showFeatureCard('${q.slice(5)}')">${label}</button>`;
