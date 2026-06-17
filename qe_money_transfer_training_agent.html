@@ -21,12 +21,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .status-dot{width:6px;height:6px;border-radius:50%;background:#4cef8a;display:inline-block}
 .header-greeting{color:rgba(255,255,255,0.95);font-size:13px;line-height:1.5}
 
-/* LANG SWITCHER */
-.lang-bar{background:#fff;border-bottom:1px solid #e8eaed;padding:8px 16px;display:flex;align-items:center;gap:6px;flex-shrink:0}
-.lang-label{font-size:11px;color:#80868b;margin-right:4px}
-.lang-btn{font-size:11px;padding:3px 10px;border-radius:12px;border:1px solid #dadce0;background:transparent;color:#5f6368;cursor:pointer;transition:all 0.15s}
-.lang-btn.active{background:#1a73e8;color:#fff;border-color:#1a73e8}
-
 /* MODES */
 .mode-bar{padding:10px 14px;border-bottom:1px solid #e8eaed;display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;background:#fafafa}
 .mode-btn{font-size:11px;padding:4px 10px;border-radius:14px;border:1px solid #dadce0;background:#fff;color:#5f6368;cursor:pointer;transition:all 0.15s;white-space:nowrap}
@@ -93,6 +87,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .fc-tags-label{color:#5f6368;font-size:11.5px;margin-bottom:5px}
 .fc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
 .fc-tag{font-size:11px;padding:3px 9px;border-radius:12px;background:#e8f0fe;color:#1a73e8;font-weight:500}
+/* QUIZ */
+.quiz-card{background:#fff;border:1.5px solid #dadce0;border-radius:12px;overflow:hidden;margin:2px 0;font-size:13px}
+.quiz-hd{padding:7px 14px;background:#e8f0fe;border-bottom:1px solid #c5d8fb;font-size:11px;font-weight:600;color:#1a73e8;display:flex;justify-content:space-between}
+.quiz-q{padding:12px 14px 10px;font-weight:500;color:#202124;line-height:1.5;font-size:12.5px}
+.quiz-opts{display:flex;flex-direction:column;gap:5px;padding:0 14px 12px}
+.quiz-opt{text-align:left;padding:8px 12px;border-radius:8px;border:1.5px solid #dadce0;background:#fff;font-size:12px;color:#3c4043;cursor:pointer;transition:all 0.15s;line-height:1.4}
+.quiz-opt:hover:not([disabled]){background:#f8f9fa;border-color:#aecbfa}
+.quiz-opt.correct{background:#e6f4ea!important;border-color:#34a853!important;color:#137333!important;font-weight:600}
+.quiz-opt.wrong{background:#fce8e6!important;border-color:#ea4335!important;color:#c5221f!important}
+.quiz-explain{margin:0 14px 10px;padding:8px 10px;background:#fafafa;border-left:3px solid #1a73e8;font-size:11.5px;color:#3c4043;border-radius:0 6px 6px 0;line-height:1.5}
+.quiz-next{display:block;margin:0 14px 12px;padding:8px;background:#1a73e8;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;width:calc(100% - 28px);text-align:center}
+.quiz-score-card{padding:20px 16px;text-align:center}
+.quiz-score-num{font-size:36px;font-weight:700;color:#1a73e8;line-height:1}
+.quiz-score-lbl{font-size:11px;color:#5f6368;margin-top:4px}
+.quiz-score-msg{font-size:13px;font-weight:500;margin:12px 0 16px;color:#202124}
+.quiz-score-btns{display:flex;gap:8px}
+.quiz-score-btns button{flex:1;padding:9px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;border:1.5px solid #1a73e8}
+.qsb-retry{background:#fff;color:#1a73e8}
+.qsb-ai{background:#1a73e8;color:#fff}
 
 .typing .bubble{background:#f1f3f4;padding:9px 13px;display:flex;align-items:center;gap:8px}
 .typing-text{font-size:12px;color:#5f6368;animation:fadeStatus 0.3s ease}
@@ -144,13 +157,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="header-greeting" id="headerGreeting">Xin chào! Tôi hỗ trợ đào tạo QE về nghiệp vụ chuyển tiền, test case và mô phỏng tình huống thực tế.</div>
   </div>
 
-  <!-- LANG SWITCHER -->
-  <div class="lang-bar">
-    <span class="lang-label" id="langLabel">Ngôn ngữ:</span>
-    <button class="lang-btn active" onclick="setLang('vi',this)">Tiếng Việt</button>
-    <button class="lang-btn" onclick="setLang('en',this)">English</button>
-  </div>
-
   <!-- MODES -->
   <div class="mode-bar" id="modeBar">
     <button class="mode-btn active" onclick="setMode('all',this)" id="modeAll">Tất cả</button>
@@ -159,6 +165,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <button class="mode-btn" onclick="setMode('bug',this)" id="modeBug">Bug report</button>
     <button class="mode-btn" onclick="setMode('tools',this)" id="modeTools">Công cụ</button>
     <button class="mode-btn" onclick="setMode('scenario',this)" id="modeScen">Mô phỏng</button>
+    <button class="mode-btn" onclick="setMode('quiz',this)" id="modeQuiz">🧠 Quiz</button>
   </div>
 
   <!-- CHAT -->
@@ -183,57 +190,32 @@ const AGENT_ENDPOINT = '/invocations';
 const I18N = {
   vi: {
     placeholder: 'Nhập câu hỏi...',
-    langLabel: 'Ngôn ngữ:',
     botStatusTxt: 'Online · Money Transfer',
     headerGreeting: 'Xin chào! Tôi hỗ trợ đào tạo QE về nghiệp vụ chuyển tiền, test case và mô phỏng tình huống thực tế.',
-    modes: ['Tất cả','Nghiệp vụ','Test case','Bug report','Công cụ','Mô phỏng'],
-    welcome: 'Xin chào! Tôi là **QE Training Agent**.\n\nTôi có thể giúp bạn:\n• Nghiệp vụ chuyển tiền nội địa & quốc tế\n• Viết test case và test scenario\n• Bug report chuẩn\n• Công cụ & môi trường test\n• Mô phỏng tình huống thực tế',
+    modes: ['Tất cả','Nghiệp vụ','Test case','Bug report','Công cụ','Mô phỏng','🧠 Quiz'],
+    welcome: 'Xin chào! Tôi là **QE Training Agent**.\n\nTôi có thể giúp bạn:\n• Nghiệp vụ P2P · iBFT · QR Code\n• Viết test case và test scenario\n• Bug report chuẩn\n• Công cụ & môi trường test\n• Mô phỏng tình huống thực tế',
     quick: {
-      all:[['📋 P2P','__fc:p2p'],['📋 iBFT','__fc:ibft'],['📋 QR Code','__fc:qr'],['Chuyển tiền nội địa','Quy trình chuyển tiền nội địa là gì?'],['Mô phỏng test','Cho tôi 1 test scenario về chuyển tiền quốc tế'],['Bug report mẫu','Cách viết bug report cho lỗi sai số tiền?']],
-      nghiep_vu:[['CT quốc tế','Quy trình chuyển tiền quốc tế SWIFT như thế nào?'],['Hạn mức','Hạn mức chuyển tiền và các quy định liên quan?'],['Trạng thái GD','Các trạng thái của một giao dịch chuyển tiền?'],['Rollback','Khi nào giao dịch bị rollback và quy trình hoàn tiền?']],
+      all:[['📋 P2P','__fc:p2p'],['📋 iBFT','__fc:ibft'],['📋 QR Code','__fc:qr'],['Nghiệp vụ P2P','Quy trình chuyển tiền P2P nội bộ là gì?']],
+      nghiep_vu:[['Hạn mức','Hạn mức chuyển tiền và các quy định liên quan?'],['Trạng thái GD','Các trạng thái của một giao dịch chuyển tiền?'],['Rollback','Khi nào giao dịch bị rollback và quy trình hoàn tiền?']],
       test_case:[['Happy path','Viết test case happy path cho chuyển tiền nội địa'],['API test','Cấu trúc test case API cho endpoint chuyển tiền?']],
       bug:[['Sai số tiền','Viết bug report: hiển thị sai số tiền sau khi chuyển'],['Timeout','Viết bug report: giao dịch timeout nhưng tiền vẫn bị trừ'],['Severity','Cách phân loại severity và priority cho bug money transfer?'],['Template','Template bug report chuẩn cho dự án banking?']],
       tools:[['Postman','Dùng Postman test API chuyển tiền như thế nào?'],['Database','Query SQL để verify giao dịch trên database?'],['Log','Cách đọc log để debug lỗi giao dịch?'],['Môi trường','Môi trường test cần chuẩn bị gì cho money transfer?']],
-      scenario:[['Bắt đầu','Cho tôi một scenario thực tế để luyện tập test'],['Lỗi bất thường','Mô phỏng: giao dịch trừ tiền nhưng không có biên lai'],['Performance','Scenario: hệ thống chậm giờ cao điểm, tôi test gì?'],['Security','Scenario: kiểm tra bảo mật cho luồng chuyển tiền']]
+      scenario:[['Bắt đầu','Cho tôi một scenario thực tế để luyện tập test'],['Lỗi bất thường','Mô phỏng: giao dịch trừ tiền nhưng không có biên lai'],['Performance','Scenario: hệ thống chậm giờ cao điểm, tôi test gì?'],['Security','Scenario: kiểm tra bảo mật cho luồng chuyển tiền']],
+      quiz:[['🔁 Làm lại','__quiz:start'],['🎯 Hỏi AI','Tạo 1 câu hỏi scenario khó về nghiệp vụ transfer (P2P/iBFT/QR) để tôi luyện tập, sau đó đánh giá câu trả lời của tôi']]
     }
   },
-  en: {
-    placeholder: 'Type your question...',
-    langLabel: 'Language:',
-    botStatusTxt: 'Online · Money Transfer',
-    headerGreeting: 'Hello! I help QE engineers learn money transfer domain: business flows, test cases, bug reports, and real-world scenarios.',
-    modes: ['All','Business','Test case','Bug report','Tools','Simulation'],
-    welcome: 'Hello! I\'m the **QE Training Agent**.\n\nI can help you with:\n• Domestic & international money transfer flows\n• Writing test cases and scenarios\n• Proper bug reports\n• Testing tools & environments\n• Real-world test simulations',
-    quick: {
-      all:[['📋 P2P','__fc:p2p'],['📋 iBFT','__fc:ibft'],['📋 QR Code','__fc:qr'],['Domestic transfer','What is the domestic money transfer process?'],['Simulate test','Give me a test scenario for international transfer'],['Bug report sample','How to write a bug report for wrong amount displayed?']],
-      nghiep_vu:[['SWIFT','How does the international SWIFT transfer process work?'],['Limits','What are the transfer limits and regulations?'],['Statuses','What are the statuses of a money transfer transaction?'],['Rollback','When does a transaction rollback and how is refund processed?']],
-      test_case:[['Happy path','Write a happy path test case for domestic transfer'],['API test','Test case structure for the transfer API endpoint?']],
-      bug:[['Wrong amount','Write bug report: wrong amount displayed after transfer'],['Timeout','Write bug report: transaction timeout but money was deducted'],['Severity','How to classify severity and priority for money transfer bugs?'],['Template','Standard bug report template for a banking project?']],
-      tools:[['Postman','How to test transfer API using Postman?'],['Database','SQL query to verify transaction in database?'],['Logs','How to read logs to debug transaction errors?'],['Environment','What to prepare in a test environment for money transfer?']],
-      scenario:[['Start','Give me a real scenario to practice testing'],['Anomaly','Simulate: money deducted but no receipt generated'],['Performance','Scenario: system slow at peak hours, what should I test?'],['Security','Scenario: security testing for the transfer flow']]
-    }
-  }
 };
 
-const MODE_KEYS = ['all','nghiep_vu','test_case','bug','tools','scenario'];
-const MODE_IDS  = ['modeAll','modeNV','modeTC','modeBug','modeTools','modeScen'];
+const MODE_KEYS = ['all','nghiep_vu','test_case','bug','tools','scenario','quiz'];
+const MODE_IDS  = ['modeAll','modeNV','modeTC','modeBug','modeTools','modeScen','modeQuiz'];
 
-let lang = 'vi';
 let mode = 'all';
 let history = [];
 let isTyping = false;
 
-function setLang(l, el) {
-  lang = l;
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  applyI18n();
-}
-
 function applyI18n() {
-  const t = I18N[lang];
+  const t = I18N.vi;
   document.getElementById('userInput').placeholder = t.placeholder;
-  document.getElementById('langLabel').textContent = t.langLabel;
   document.getElementById('botStatusTxt').textContent = t.botStatusTxt;
   document.getElementById('headerGreeting').textContent = t.headerGreeting;
   MODE_IDS.forEach((id, i) => { document.getElementById(id).textContent = t.modes[i]; });
@@ -245,14 +227,14 @@ function setMode(m, el) {
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   updateQuickBtns(m);
+  if (m === 'quiz') startQuiz();
 }
 
 function updateQuickBtns(m) {
-  const btns = I18N[lang].quick[m] || I18N[lang].quick.all;
+  const btns = I18N.vi.quick[m] || I18N.vi.quick.all;
   document.getElementById('quickBtns').innerHTML = btns.map(([label, q]) => {
-    if (q.startsWith('__fc:')) {
-      return `<button class="qbtn" onclick="showFeatureCard('${q.slice(5)}')">${label}</button>`;
-    }
+    if (q.startsWith('__fc:')) return `<button class="qbtn" onclick="showFeatureCard('${q.slice(5)}')">${label}</button>`;
+    if (q.startsWith('__quiz:')) return `<button class="qbtn" onclick="startQuiz()">${label}</button>`;
     return `<button class="qbtn" onclick="sendQuick('${q.replace(/'/g,"&#39;")}')">${label}</button>`;
   }).join('');
 }
@@ -438,7 +420,7 @@ function appendMsg(role, text) {
   chat.scrollTop = chat.scrollHeight;
 }
 
-const TYPING_MSGS = ['Đang phân tích...', 'Sắp hoàn thành...', 'Chỉ 1 xíu nữa thôi...'];
+const TYPING_MSGS = ['Vũ trụ đang vận hành...', 'Thế giới đang xoay xoay...', 'Thời sắp đến...', 'Tiến lên...', 'Tiến lên...', 'Tới rồi...'];
 let _typingTimer = null;
 
 function showTyping() {
@@ -502,14 +484,14 @@ async function sendMsg() {
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
-    const reply = data.reply || (lang === 'vi' ? 'Xin lỗi, có lỗi xảy ra.' : 'Sorry, an error occurred.');
+    const reply = data.reply || 'Xin lỗi, có lỗi xảy ra.';
     history.push({role:'user', content: text});
     history.push({role:'assistant', content: reply});
     removeTyping();
     appendMsg('bot', reply);
   } catch (e) {
     removeTyping();
-    appendMsg('bot', lang === 'vi' ? 'Xin lỗi, mất kết nối. Vui lòng thử lại.' : 'Connection error. Please try again.');
+    appendMsg('bot', 'Xin lỗi, mất kết nối. Vui lòng thử lại.');
   }
 
   isTyping = false;
@@ -532,6 +514,129 @@ function autoResize(el) {
   el.style.height = Math.min(el.scrollHeight, 90) + 'px';
   document.getElementById('sendBtn').disabled = el.value.trim() === '' || isTyping;
 }
+
+// ── QUIZ ────────────────────────────────────────────────
+const QUIZ_QUESTIONS = [
+  { q:'Min amount của P2P là bao nhiêu?',
+    opts:['500 VND','1.000 VND','2.000 VND','5.000 VND'], correct:1,
+    explain:'P2P min = 1.000 VND. Amount = 999 VND → từ chối (dưới min).' },
+  { q:'Min amount của iBFT là bao nhiêu?',
+    opts:['1.000 VND','1.500 VND','2.000 VND','5.000 VND'], correct:2,
+    explain:'iBFT min = 2.000 VND — cao hơn P2P vì qua hệ thống ngân hàng.' },
+  { q:'Sender KYC2 (liên kết ngân hàng) có được dùng iBFT không?',
+    opts:['Được','Không được','Được nếu amount ≤ 5M','Được nếu có thêm OTP'],
+    correct:1, explain:'KYC2 liên kết bank KHÔNG được dùng iBFT. Chỉ eKYC2 (định danh điện tử) và eKYC3 mới được phép.' },
+  { q:'Inquiry limit của iBFT là?',
+    opts:['80/giờ · 50/ngày','50/giờ · 80/ngày','100/giờ · 200/ngày','50/ngày · 80/tháng'],
+    correct:1, explain:'50 lần/giờ VÀ 80 lần/ngày — hai giới hạn ĐỘC LẬP. Vi phạm một trong hai đều bị chặn.' },
+  { q:'Quota phí miễn phí 5M/tháng của iBFT tính như thế nào?',
+    opts:['Riêng biệt: ví 5M + bank 5M = 10M','Tổng cộng ví + bank chung 5M','Chỉ tính nguồn ví','SDSL cũng tính vào quota'],
+    correct:1, explain:'Quota 5M/tháng là TỔNG CỘNG ví + bank. VD: 3M từ ví + 2M từ bank = hết quota. SDSL luôn miễn phí và KHÔNG tính vào quota.' },
+  { q:'SDSL (đích nhận QR) có hạn mức tối đa bao nhiêu/giao dịch?',
+    opts:['20.000.000 VND','50.000.000 VND','100.000.000 VND','Không giới hạn'],
+    correct:2, explain:'SDSL max = 100.000.000 VND/giao dịch — KHÔNG phụ thuộc KYC. Boundary: 100M pass, 100M+1 fail.' },
+  { q:'eKYC3 fund-in có giới hạn không?',
+    opts:['20M/ngày, 20M/tháng','50M/ngày, 100M/tháng','100M/ngày','Không giới hạn'],
+    correct:3, explain:'eKYC3 fund-in KHÔNG GIỚI HẠN — khác với eKYC2/KYC2 (20M/ngày, 20M/tháng).' },
+  { q:'eKYC3 fund-out tối đa theo tháng là bao nhiêu?',
+    opts:['20.000.000 VND','50.000.000 VND','100.000.000 VND','Không giới hạn'],
+    correct:2, explain:'eKYC3: fund-out 50M/ngày, 100M/tháng. Fund-out và fund-in là 2 hạn mức ĐỘC LẬP.' },
+  { q:'Receiver P2P cần KYC tối thiểu ở level nào?',
+    opts:['Không cần KYC','KYC lv1','KYC lv2 (eKYC2/KYC2/eKYC3)','Chỉ eKYC3'],
+    correct:2, explain:'Cả Sender lẫn Receiver P2P đều cần KYC ≥ 2. Receiver KYC lv0/lv1 → giao dịch bị chặn.' },
+  { q:'Zalopay scan QR Code sẽ thực hiện loại giao dịch nào?',
+    opts:['iBFT ra ngân hàng','P2P nội bộ','Giao dịch liên ngân hàng','SDSL transfer'],
+    correct:1, explain:'Zalopay scan QR → P2P nội bộ. App KHÁC (banking app) scan QR → liên ngân hàng. Hai luồng hoàn toàn khác nhau.' }
+];
+
+let _quizScore = 0;
+let _quizAnswered = 0;
+
+function startQuiz() {
+  _quizScore = 0;
+  _quizAnswered = 0;
+  _renderQuizCard(0);
+}
+
+function _renderQuizCard(idx) {
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const q = QUIZ_QUESTIONS[idx];
+  const total = QUIZ_QUESTIONS.length;
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  const optsHtml = q.opts.map((o, i) =>
+    `<button class="quiz-opt" onclick="_answerQuiz(${idx},${i})">${['A','B','C','D'][i]}. ${esc(o)}</button>`
+  ).join('');
+  div.innerHTML = `
+    <div class="bot-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/>
+      <line x1="12" y1="7" x2="12" y2="11"/><circle cx="8.5" cy="15.5" r="1"/><circle cx="15.5" cy="15.5" r="1"/>
+    </svg></div>
+    <div class="bubble"><div class="quiz-card" id="qcard-${idx}">
+      <div class="quiz-hd"><span>Câu ${idx+1}/${total}</span><span id="qscore-${idx}">Đã làm: ${_quizAnswered} &nbsp;✅ ${_quizScore} &nbsp;❌ ${_quizAnswered-_quizScore}</span></div>
+      <div class="quiz-q">${esc(q.q)}</div>
+      <div class="quiz-opts" id="qopts-${idx}">${optsHtml}</div>
+    </div></div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function _answerQuiz(idx, chosen) {
+  const optsEl = document.getElementById(`qopts-${idx}`);
+  if (!optsEl || optsEl.dataset.done) return;
+  optsEl.dataset.done = '1';
+  const q = QUIZ_QUESTIONS[idx];
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.correct) b.classList.add('correct');
+    else if (i === chosen) b.classList.add('wrong');
+  });
+  if (chosen === q.correct) _quizScore++;
+  _quizAnswered++;
+  document.getElementById(`qscore-${idx}`).innerHTML = `Đã làm: ${_quizAnswered} &nbsp;✅ ${_quizScore} &nbsp;❌ ${_quizAnswered-_quizScore}`;
+  const card = document.getElementById(`qcard-${idx}`);
+  const ex = document.createElement('div');
+  ex.className = 'quiz-explain';
+  ex.textContent = (chosen === q.correct ? '✅ Đúng! ' : '❌ Sai. ') + q.explain;
+  card.appendChild(ex);
+  const nb = document.createElement('button');
+  nb.className = 'quiz-next';
+  const isLast = idx === QUIZ_QUESTIONS.length - 1;
+  nb.textContent = isLast ? 'Xem kết quả →' : 'Câu tiếp theo →';
+  nb.onclick = () => { nb.disabled = true; isLast ? _showQuizScore() : _renderQuizCard(idx + 1); };
+  card.appendChild(nb);
+  document.getElementById('chat').scrollTop = 99999;
+}
+
+function _showQuizScore() {
+  const total = QUIZ_QUESTIONS.length;
+  const pct = Math.round(_quizScore / total * 100);
+  const msg = pct >= 80 ? '🎉 Xuất sắc! Bạn nắm rất vững nghiệp vụ Transfer.' :
+               pct >= 60 ? '👍 Khá tốt! Ôn lại một vài điểm còn yếu nhé.' :
+                           '📚 Cần ôn tập thêm — đọc lại PRD và thử lại!';
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.innerHTML = `
+    <div class="bot-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/>
+      <line x1="12" y1="7" x2="12" y2="11"/><circle cx="8.5" cy="15.5" r="1"/><circle cx="15.5" cy="15.5" r="1"/>
+    </svg></div>
+    <div class="bubble"><div class="quiz-card"><div class="quiz-score-card">
+      <div class="quiz-score-num">${_quizScore}/${total}</div>
+      <div class="quiz-score-lbl">${pct}% chính xác</div>
+      <div class="quiz-score-msg">${msg}</div>
+      <div class="quiz-score-btns">
+        <button class="qsb-retry" onclick="startQuiz()">🔁 Làm lại</button>
+        <button class="qsb-ai" onclick="sendQuick('Tạo 1 câu hỏi scenario khó về nghiệp vụ transfer để tôi luyện tập, sau đó đánh giá câu trả lời của tôi')">🎯 Hỏi AI</button>
+      </div>
+    </div></div></div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+// ────────────────────────────────────────────────────────
 
 const FEATURE_CARDS = {
   p2p: {
@@ -564,7 +669,7 @@ const FEATURE_CARDS = {
     title: 'QR CODE — NHẬN TIỀN',
     rows: [
       { label: 'Rule tạo QR',      value: '= Rule nhận tiền P2P' },
-      { label: 'ZaloPay scan QR',  value: 'P2P nội bộ' },
+      { label: 'Zalopay scan QR',  value: 'P2P nội bộ' },
       { label: 'App khác scan QR', value: 'Liên ngân hàng' },
       { label: 'Đích SDSL max',    value: '100.000.000 VND', note: '100M pass · 100M+1 fail' },
     ],
@@ -616,7 +721,7 @@ function showFeatureCard(key) {
 
 window.addEventListener('load', () => {
   applyI18n();
-  appendMsg('bot', I18N[lang].welcome);
+  appendMsg('bot', I18N.vi.welcome);
 });
 </script>
 </body>

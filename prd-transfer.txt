@@ -1,5 +1,5 @@
 PRD — Transfer Feature
-Ví điện tử ZaloPay · P2P · iBFT · QR Code
+Ví điện tử Zalopay · P2P · iBFT · QR Code
 Version 1.0 | Internal
 
 === 1. TỔNG QUAN ===
@@ -89,7 +89,7 @@ QUY TẮC CHUNG: Sender chưa KYC hoặc KYC lv1 KHÔNG được thực hiện b
 === 5. QR CODE — NHẬN TIỀN QUA MÃ QR ===
 
 5.2 Cách thức hoạt động:
-- ZaloPay scan QR: thực hiện giao dịch P2P nội bộ
+- Zalopay scan QR: thực hiện giao dịch P2P nội bộ
 - App khác scan QR: thực hiện giao dịch liên ngân hàng
 
 5.3 Rule tạo QR = Rule nhận tiền P2P
@@ -128,7 +128,7 @@ QR Code SDSL: Khi receiver chọn đích SDSL → hạn mức 100M/giao dịch. 
 === 7. GLOSSARY ===
 | Thuật ngữ | Định nghĩa |
 |----------|-----------|
-| P2P | Peer-to-Peer — chuyển tiền nội bộ giữa các ví ZaloPay |
+| P2P | Peer-to-Peer — chuyển tiền nội bộ giữa các ví Zalopay |
 | iBFT | Interbank Fund Transfer — chuyển tiền ra tài khoản ngân hàng |
 | eKYC2 | Level 2 do định danh điện tử. Fund-out 20M/ngày, 20M/tháng |
 | KYC2 | Level 2 do liên kết tài khoản ngân hàng. Fund-out 20M/ngày, 20M/tháng. KHÔNG được dùng iBFT |
