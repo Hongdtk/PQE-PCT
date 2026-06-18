@@ -205,10 +205,15 @@ def handler(payload: dict, context: RequestContext) -> dict:
     history = payload.get("history", [])
 
     TC_KEYWORDS = ["test case", "testcase", "test-case", "viết tc", "liệt kê tc", "tc cho", "các tc"]
+    HAPPY_KEYWORDS = ["happy path", "happy case", "valid case", "valid only", "chỉ valid", "chỉ happy"]
+    INVALID_KEYWORDS = ["invalid case", "invalid only", "negative", "chỉ invalid", "chỉ negative", "error case"]
+    msg_lower = message.lower()
     is_tc_request = (
         mode == "test_case"
-        or any(kw in message.lower() for kw in TC_KEYWORDS)
+        or any(kw in msg_lower for kw in TC_KEYWORDS)
     )
+    is_happy_only = any(kw in msg_lower for kw in HAPPY_KEYWORDS)
+    is_invalid_only = any(kw in msg_lower for kw in INVALID_KEYWORDS)
 
     base_messages = [m for m in history if isinstance(m, dict) and "role" in m and "content" in m]
     base_messages = base_messages[-12:]
@@ -219,12 +224,23 @@ def handler(payload: dict, context: RequestContext) -> dict:
         user_content = message
 
     if is_tc_request:
-        user_content = (
-            f"{user_content}\n\n"
-            "Liệt kê ĐẦY ĐỦ cả hai nhóm trong một lần trả lời:\n"
-            "1. ✅ Valid cases (happy path)\n"
-            "2. ❌ Invalid cases (KYC không đủ, amount sai/âm/0/vượt hạn mức, timeout, concurrent, inquiry limit...)"
-        )
+        if is_happy_only:
+            user_content = (
+                f"{user_content}\n\n"
+                "CHỈ liệt kê ✅ Valid cases (happy path) — KHÔNG liệt kê invalid cases."
+            )
+        elif is_invalid_only:
+            user_content = (
+                f"{user_content}\n\n"
+                "CHỈ liệt kê ❌ Invalid cases (KYC không đủ, amount sai/âm/0/vượt hạn mức, timeout, concurrent, inquiry limit...) — KHÔNG liệt kê valid cases."
+            )
+        else:
+            user_content = (
+                f"{user_content}\n\n"
+                "Liệt kê ĐẦY ĐỦ cả hai nhóm trong một lần trả lời:\n"
+                "1. ✅ Valid cases (happy path)\n"
+                "2. ❌ Invalid cases (KYC không đủ, amount sai/âm/0/vượt hạn mức, timeout, concurrent, inquiry limit...)"
+            )
 
     base_messages.append({"role": "user", "content": user_content})
     max_tokens = 5000 if is_tc_request else 1500
@@ -263,7 +279,12 @@ async def _stream_chat(request: Request):
     history = body.get("history", [])
 
     TC_KEYWORDS = ["test case", "testcase", "test-case", "viết tc", "liệt kê tc", "tc cho", "các tc"]
-    is_tc_request = mode == "test_case" or any(kw in message.lower() for kw in TC_KEYWORDS)
+    HAPPY_KEYWORDS = ["happy path", "happy case", "valid case", "valid only", "chỉ valid", "chỉ happy"]
+    INVALID_KEYWORDS = ["invalid case", "invalid only", "negative", "chỉ invalid", "chỉ negative", "error case"]
+    msg_lower = message.lower()
+    is_tc_request = mode == "test_case" or any(kw in msg_lower for kw in TC_KEYWORDS)
+    is_happy_only = any(kw in msg_lower for kw in HAPPY_KEYWORDS)
+    is_invalid_only = any(kw in msg_lower for kw in INVALID_KEYWORDS)
 
     base_messages = [m for m in history if isinstance(m, dict) and "role" in m and "content" in m][-12:]
 
@@ -273,12 +294,23 @@ async def _stream_chat(request: Request):
         user_content = message
 
     if is_tc_request:
-        user_content = (
-            f"{user_content}\n\n"
-            "Liệt kê ĐẦY ĐỦ cả hai nhóm trong một lần trả lời:\n"
-            "1. ✅ Valid cases (happy path)\n"
-            "2. ❌ Invalid cases (KYC không đủ, amount sai/âm/0/vượt hạn mức, timeout, concurrent, inquiry limit...)"
-        )
+        if is_happy_only:
+            user_content = (
+                f"{user_content}\n\n"
+                "CHỈ liệt kê ✅ Valid cases (happy path) — KHÔNG liệt kê invalid cases."
+            )
+        elif is_invalid_only:
+            user_content = (
+                f"{user_content}\n\n"
+                "CHỈ liệt kê ❌ Invalid cases (KYC không đủ, amount sai/âm/0/vượt hạn mức, timeout, concurrent, inquiry limit...) — KHÔNG liệt kê valid cases."
+            )
+        else:
+            user_content = (
+                f"{user_content}\n\n"
+                "Liệt kê ĐẦY ĐỦ cả hai nhóm trong một lần trả lời:\n"
+                "1. ✅ Valid cases (happy path)\n"
+                "2. ❌ Invalid cases (KYC không đủ, amount sai/âm/0/vượt hạn mức, timeout, concurrent, inquiry limit...)"
+            )
 
     base_messages.append({"role": "user", "content": user_content})
     max_tokens = 5000 if is_tc_request else 1500
